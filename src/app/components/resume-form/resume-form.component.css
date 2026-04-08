@@ -1,0 +1,18 @@
+.card-header {
+  font-size: 1rem;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+.input-group-text {
+  font-weight: bold;
+  font-size: 1.1rem;
+}

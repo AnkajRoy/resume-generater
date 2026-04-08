@@ -1,0 +1,220 @@
+<div class="container py-4">
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold text-primary">Resume PDF Generator</h1>
+    <p class="text-muted">Fill in your details and generate a professional PDF resume</p>
+  </div>
+
+  <form [formGroup]="form">
+
+    <!-- Personal Info -->
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white fw-bold">Personal Information</div>
+      <div class="card-body" formGroupName="personalInfo">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Full Name *</label>
+            <input formControlName="name" class="form-control" placeholder="e.g. John Doe">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Job Title *</label>
+            <input formControlName="title" class="form-control" placeholder="e.g. Frontend Engineer">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Phone</label>
+            <input formControlName="phone" class="form-control" placeholder="+91-XXXXXXXXXX">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Email *</label>
+            <input formControlName="email" class="form-control" type="email" placeholder="you@email.com">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">LinkedIn URL</label>
+            <input formControlName="linkedin" class="form-control" placeholder="https://linkedin.com/in/...">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">GitHub URL</label>
+            <input formControlName="github" class="form-control" placeholder="https://github.com/...">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">LeetCode URL</label>
+            <input formControlName="leetcode" class="form-control" placeholder="https://leetcode.com/...">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white fw-bold">Professional Summary *</div>
+      <div class="card-body">
+        <textarea formControlName="summary" class="form-control" rows="4" placeholder="Write a brief professional summary..."></textarea>
+      </div>
+    </div>
+
+    <!-- Experience -->
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+        Professional Experience
+        <button type="button" class="btn btn-sm btn-light" (click)="addExperience()">+ Add Experience</button>
+      </div>
+      <div class="card-body" formArrayName="experiences">
+        @for (exp of experiences.controls; track exp; let ei = $index) {
+          <div class="border rounded p-3 mb-3 bg-light" [formGroupName]="ei">
+            <div class="d-flex justify-content-between mb-2">
+              <strong>Experience {{ ei + 1 }}</strong>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeExperience(ei)">Remove</button>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md-4">
+                <input formControlName="company" class="form-control" placeholder="Company Name">
+              </div>
+              <div class="col-md-4">
+                <input formControlName="role" class="form-control" placeholder="Role / Title">
+              </div>
+              <div class="col-md-4">
+                <input formControlName="dateRange" class="form-control" placeholder="Aug 2022 – Present">
+              </div>
+              <div class="col-12">
+                <input formControlName="subtitle" class="form-control" placeholder="Short subtitle (optional)">
+              </div>
+            </div>
+
+            <!-- Subsections -->
+            <div formArrayName="subsections">
+              @for (ss of getSubsections(ei).controls; track ss; let si = $index) {
+                <div class="border rounded p-2 mb-2 ms-3" [formGroupName]="si">
+                  <div class="d-flex justify-content-between mb-1">
+                    <small class="fw-bold text-primary">Sub-section {{ si + 1 }}</small>
+                    <button type="button" class="btn btn-sm btn-outline-danger py-0" (click)="removeSubsection(ei, si)">x</button>
+                  </div>
+                  <input formControlName="title" class="form-control form-control-sm mb-2" placeholder="Sub-section title">
+                  <!-- Bullets -->
+                  <div formArrayName="bullets">
+                    @for (b of getBullets(ei, si).controls; track b; let bi = $index) {
+                      <div class="input-group input-group-sm mb-1">
+                        <span class="input-group-text">&#8226;</span>
+                        <textarea [formControlName]="bi" class="form-control" rows="2" placeholder="Bullet point"></textarea>
+                        <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeBullet(ei, si, bi)">x</button>
+                      </div>
+                    }
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-secondary mt-1" (click)="addBullet(ei, si)">+ Bullet</button>
+                </div>
+              }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary ms-3" (click)="addSubsection(ei)">+ Sub-section</button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+        Key Projects
+        <button type="button" class="btn btn-sm btn-light" (click)="addProject()">+ Add Project</button>
+      </div>
+      <div class="card-body" formArrayName="projects">
+        @for (proj of projects.controls; track proj; let pi = $index) {
+          <div class="border rounded p-3 mb-2 bg-light" [formGroupName]="pi">
+            <div class="d-flex justify-content-between mb-2">
+              <strong>Project {{ pi + 1 }}</strong>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeProject(pi)">Remove</button>
+            </div>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <input formControlName="name" class="form-control" placeholder="Project Name">
+              </div>
+              <div class="col-md-6">
+                <input formControlName="description" class="form-control" placeholder=" — Tech stack description">
+              </div>
+              <div class="col-md-6">
+                <input formControlName="githubUrl" class="form-control" placeholder="https://github.com/...">
+              </div>
+              <div class="col-md-6">
+                <input formControlName="githubText" class="form-control" placeholder="github.com/org/repo">
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Skills -->
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+        Technical Skills
+        <button type="button" class="btn btn-sm btn-light" (click)="addSkill()">+ Add Skill Category</button>
+      </div>
+      <div class="card-body" formArrayName="skills">
+        @for (skill of skills.controls; track skill; let si = $index) {
+          <div class="input-group mb-2" [formGroupName]="si">
+            <input formControlName="label" class="form-control" style="max-width:220px" placeholder="Category Label:  ">
+            <input formControlName="value" class="form-control" placeholder="Skill 1, Skill 2, Skill 3...">
+            <button type="button" class="btn btn-outline-danger" (click)="removeSkill(si)">x</button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Education -->
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white fw-bold">Education</div>
+      <div class="card-body" formGroupName="education">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Degree</label>
+            <input formControlName="degree" class="form-control" placeholder="Bachelor of Engineering (B.E.)">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Institution</label>
+            <input formControlName="institution" class="form-control" placeholder="University Name">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Year</label>
+            <input formControlName="year" class="form-control" placeholder="2022">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">CGPA</label>
+            <input formControlName="cgpa" class="form-control" placeholder="7.85/10">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+        Achievements
+        <button type="button" class="btn btn-sm btn-light" (click)="addAchievement()">+ Add Achievement</button>
+      </div>
+      <div class="card-body" formArrayName="achievements">
+        @for (ach of achievements.controls; track ach; let ai = $index) {
+          <div class="input-group mb-2">
+            <span class="input-group-text">&#8226;</span>
+            <textarea [formControlName]="ai" class="form-control" rows="2" placeholder="Achievement details..."></textarea>
+            <button type="button" class="btn btn-outline-danger" (click)="removeAchievement(ai)">x</button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center mb-4">
+      <button type="button" class="btn btn-primary btn-lg me-3 px-5" (click)="generatePdf()">
+        Download PDF Resume
+      </button>
+      <button type="button" class="btn btn-outline-secondary btn-lg" (click)="clearForm()">
+        Clear Form
+      </button>
+
+      @if (message) {
+        <div class="mt-3 fw-bold" [class.text-success]="messageType === 'success'" [class.text-danger]="messageType === 'error'">
+          {{ message }}
+        </div>
+      }
+    </div>
+
+  </form>
+</div>
