@@ -6,6 +6,7 @@ export interface ResumeData {
   skills: SkillCategory[];
   education: Education;
   achievements: string[];
+  keyAchievements?: KeyAchievement[];
 }
 
 export interface PersonalInfo {
@@ -16,6 +17,12 @@ export interface PersonalInfo {
   linkedin: string;
   github: string;
   leetcode: string;
+  location?: string;
+}
+
+export interface KeyAchievement {
+  title: string;
+  description: string;
 }
 
 export interface Experience {
@@ -48,4 +55,5 @@ export interface Education {
   institution: string;
   year: string;
   cgpa: string;
+  location?: string;
 }

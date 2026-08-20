@@ -4,6 +4,26 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } fr
 import { PdfGeneratorService } from '../../services/pdf-generator.service';
 import { ResumeData } from '../../models/resume.model';
 
+type ProfileKey = 'frontend' | 'backend';
+
+interface ExperienceProfile {
+  company: string;
+  role: string;
+  dateRange: string;
+  subtitle: string;
+  subsections: { title: string; bullets: string[] }[];
+}
+
+interface ResumeProfile {
+  title: string;
+  summary: string;
+  experience: ExperienceProfile;
+  projects: { name: string; description: string; githubUrl: string; githubText: string }[];
+  skills: { label: string; value: string }[];
+  achievements: string[];
+  keyAchievements: { title: string; description: string }[];
+}
+
 @Component({
   selector: 'app-resume-form',
   standalone: true,
@@ -15,10 +35,33 @@ export class ResumeFormComponent {
   form: FormGroup;
   message = '';
   messageType = '';
+  activeProfile: ProfileKey = 'frontend';
+  templateStyle: 'classic' | 'modern' = 'classic';
+  keyAchievements: { title: string; description: string }[] = [];
 
   constructor(private fb: FormBuilder, private pdfService: PdfGeneratorService) {
     this.form = this.buildForm();
-    this.prefillDefaultData();
+
+    this.form.patchValue({
+      personalInfo: {
+        name: 'Ankaj Kumar',
+        phone: '+91-9064748813',
+        email: 'ankajkuray@gmail.com',
+        linkedin: 'https://www.linkedin.com/in/ankaj-ray',
+        github: 'https://github.com/akroy',
+        leetcode: 'https://leetcode.com/ankajarya275',
+        location: 'Bengaluru, India'
+      },
+      education: {
+        degree: 'Bachelor of Engineering',
+        institution: 'University Institute of Technology, Burdwan',
+        year: '2022',
+        cgpa: '7.85/10',
+        location: 'Burdwan, West Bengal, India'
+      }
+    });
+
+    this.applyProfile('frontend');
   }
 
   private buildForm(): FormGroup {
@@ -30,7 +73,8 @@ export class ResumeFormComponent {
         email: ['', [Validators.required, Validators.email]],
         linkedin: [''],
         github: [''],
-        leetcode: ['']
+        leetcode: [''],
+        location: ['']
       }),
       summary: ['', Validators.required],
       experiences: this.fb.array([]),
@@ -40,7 +84,8 @@ export class ResumeFormComponent {
         degree: [''],
         institution: [''],
         year: [''],
-        cgpa: ['']
+        cgpa: [''],
+        location: ['']
       }),
       achievements: this.fb.array([])
     });
@@ -128,127 +173,292 @@ export class ResumeFormComponent {
     }
 
     const data: ResumeData = this.form.value;
-    this.pdfService.generate(data);
+    if (this.templateStyle === 'modern') {
+      this.pdfService.generateModern({ ...data, keyAchievements: this.keyAchievements });
+    } else {
+      this.pdfService.generate(data);
+    }
     this.message = 'PDF Downloaded! All links are clickable.';
     this.messageType = 'success';
   }
 
+  toggleTemplateStyle(style: 'classic' | 'modern') {
+    this.templateStyle = style;
+  }
+
   clearForm() {
-    while (this.experiences.length) this.experiences.removeAt(0);
-    while (this.projects.length) this.projects.removeAt(0);
-    while (this.skills.length) this.skills.removeAt(0);
-    while (this.achievements.length) this.achievements.removeAt(0);
+    this.clearArrays();
     this.form.reset();
     this.message = '';
   }
 
-  // ===== Pre-fill Default Data =====
-  private prefillDefaultData() {
-    this.form.patchValue({
-      personalInfo: {
-        name: 'Ankaj Kumar',
-        title: 'Frontend Engineer',
-        phone: '+91-9064748813',
-        email: 'ankajkuray@gmail.com',
-        linkedin: 'https://www.linkedin.com/in/ankaj-ray',
-        github: 'https://github.com/akroy',
-        leetcode: 'https://leetcode.com/ankajarya275'
-      },
-      summary: 'Frontend-focused Software Engineer with ~4 years of experience at InCred Financial Services, architecting scalable, production-grade web applications across fintech business domains. Expert in JavaScript, Angular (v18), and React with end-to-end ownership spanning frontend architecture, BFF layers (NestJS), authentication infrastructure (Keycloak, SSO, OTP), and RBAC systems. Architected multiple internal portals from scratch, published a private npm auth package replacing Auth0 \u2014 drastically reducing licensing costs organization-wide. Proven track record of delivering full-stack, maintainable systems in high-stakes financial environments.',
-      education: {
-        degree: 'Bachelor of Engineering (B.E.)',
-        institution: 'University Institute of Technology, Burdwan',
-        year: '2022',
-        cgpa: '7.85/10'
+  // ===== Profile switching =====
+  switchProfile(profile: ProfileKey) {
+    if (profile === this.activeProfile) return;
+    this.applyProfile(profile);
+    this.message = '';
+  }
+
+  private clearArrays() {
+    while (this.experiences.length) this.experiences.removeAt(0);
+    while (this.projects.length) this.projects.removeAt(0);
+    while (this.skills.length) this.skills.removeAt(0);
+    while (this.achievements.length) this.achievements.removeAt(0);
+  }
+
+  private fillExperienceSubsections(expIndex: number, subsections: { title: string; bullets: string[] }[]) {
+    subsections.forEach((ssData, ssIdx) => {
+      this.addSubsection(expIndex);
+      this.getSubsections(expIndex).at(ssIdx).patchValue({ title: ssData.title });
+      const bulletsArr = this.getBullets(expIndex, ssIdx);
+      bulletsArr.at(0).setValue(ssData.bullets[0]);
+      for (let i = 1; i < ssData.bullets.length; i++) {
+        bulletsArr.push(this.fb.control(ssData.bullets[i]));
       }
     });
+  }
 
-    // Experience
-    this.addExperience();
-    this.experiences.at(0).patchValue({
-      company: 'InCred Financial Services',
-      role: 'Software Engineer',
-      dateRange: 'Aug 2022 \u2013 Present',
-      subtitle: 'Joined as a fresher; grew into a system owner architecting portals, auth infrastructure, BFF services & access control systems'
+  private applyProfile(profile: ProfileKey) {
+    this.activeProfile = profile;
+    this.clearArrays();
+
+    const data = profile === 'frontend' ? this.frontendProfile : this.backendProfile;
+
+    this.form.patchValue({
+      personalInfo: { title: data.title },
+      summary: data.summary
     });
 
-    // Subsection 1
-    this.addSubsection(0);
-    this.getSubsections(0).at(0).patchValue({ title: 'FRONTEND ARCHITECTURE & PORTAL DEVELOPMENT' });
-    const ss0Bullets = [
-      'Architected InCred Ops Portal and InCred File Tracker from concept to production using Angular 18 standalone component architecture \u2014 with feature-based module structure, lazy loading, centralized interceptor chains (auth, error, loader), and PrimeNG enterprise UI serving loan processing workflows across multiple internal teams.',
-      'Designed scalable Angular project structures with environment-specific build pipelines (dev, QA, UAT, prod), hash-based routing strategy, and functional route guards \u2014 ensuring zero-downtime deployments and secure page-level access control.',
-      'Collaborated across 4+ diversified product pods, translating complex fintech business requirements into clean, maintainable, and testable frontend systems.',
-      'Established reusable architectural patterns, component libraries, coding standards, and scalable project structures adopted across engineering teams.'
-    ];
-    const ss0BulletsArr = this.getBullets(0, 0);
-    ss0BulletsArr.at(0).setValue(ss0Bullets[0]);
-    for (let i = 1; i < ss0Bullets.length; i++) {
-      ss0BulletsArr.push(this.fb.control(ss0Bullets[i]));
-    }
+    this.addExperience();
+    this.experiences.at(0).patchValue({
+      company: data.experience.company,
+      role: data.experience.role,
+      dateRange: data.experience.dateRange,
+      subtitle: data.experience.subtitle
+    });
+    this.fillExperienceSubsections(0, data.experience.subsections);
 
-    // Subsection 2
-    this.addSubsection(0);
-    this.getSubsections(0).at(1).patchValue({ title: 'AUTHENTICATION, AUTHORIZATION & USER ACCESS MANAGEMENT' });
-    const ss1Bullets = [
-      'Designed and published @incred-engineers/auth-login \u2014 a framework-agnostic UMD npm package (Webpack 5) delivering end-to-end OTP login and SSO/OAuth 2.0/Keycloak integration via API Gateway \u2014 completely replacing Auth0 and drastically reducing licensing costs organization-wide.',
-      'Owned the User Access Management portal end-to-end: designed the RBAC model, built the Angular 18 frontend architecture, integrated Keycloak roles/permissions, and delivered production-ready access control with activity audit logs and multi-environment support.',
-      'Implemented granular role-based route guards, permission-driven UI rendering, and admin dashboards for user/role/group management across all InCred internal portals.'
-    ];
-    const ss1BulletsArr = this.getBullets(0, 1);
-    ss1BulletsArr.at(0).setValue(ss1Bullets[0]);
-    for (let i = 1; i < ss1Bullets.length; i++) {
-      ss1BulletsArr.push(this.fb.control(ss1Bullets[i]));
-    }
-
-    // Subsection 3
-    this.addSubsection(0);
-    this.getSubsections(0).at(2).patchValue({ title: 'BFF (BACKEND-FOR-FRONTEND) & FULL STACK CONTRIBUTIONS' });
-    const ss2Bullets = [
-      'Designed and maintained BFF orchestration services in NestJS 11 aggregating multiple microservices (Hermes, Document Service, UAM Service) with modular architecture, JWT middleware, Swagger/OpenAPI documentation, custom interceptors, and DTO validation.',
-      'Contributed to backend Node.js services, API design, and database queries \u2014 demonstrating full-stack ownership with monitoring and observability integration via custom @incred-engineers packages.'
-    ];
-    const ss2BulletsArr = this.getBullets(0, 2);
-    ss2BulletsArr.at(0).setValue(ss2Bullets[0]);
-    for (let i = 1; i < ss2Bullets.length; i++) {
-      ss2BulletsArr.push(this.fb.control(ss2Bullets[i]));
-    }
-
-    // Projects
-    const projects = [
-      { name: 'InCred Ops Portal + File Tracker', description: ' \u2014 Owner & Architect, End-to-End  |  Angular 18, TypeScript, PrimeNG, Standalone Components, BFF', githubUrl: 'https://github.com/Incred-Engineers/incred-dms-fe', githubText: 'github.com/Incred-Engineers/incred-dms-fe' },
-      { name: 'Auth Login Package', description: ' \u2014 Owner & Architect  |  Webpack 5, UMD, Keycloak, SSO, OTP, OAuth 2.0', githubUrl: 'https://github.com/Incred-Engineers/auth-login', githubText: 'github.com/Incred-Engineers/auth-login' },
-      { name: 'User Access Management', description: ' \u2014 Owner, End-to-End  |  Angular 18, RBAC, Keycloak, Audit Logs', githubUrl: 'https://github.com/Incred-Engineers/user-access-management', githubText: 'github.com/Incred-Engineers/user-access-management' },
-      { name: 'BFF Ops Services', description: ' \u2014 Owner & Developer  |  NestJS 11, TypeScript, Axios, Swagger, JWT', githubUrl: 'https://github.com/Incred-Engineers/bff-ops', githubText: 'github.com/Incred-Engineers/bff-ops' }
-    ];
-    projects.forEach(proj => {
+    data.projects.forEach(proj => {
       this.addProject();
       this.projects.at(this.projects.length - 1).patchValue(proj);
     });
 
-    // Skills
-    const skillsList = [
-      { label: 'Languages & Core:  ', value: 'JavaScript (Expert), TypeScript, HTML5, CSS3, SQL, Python, Java, C++' },
-      { label: 'Frameworks & Libraries:  ', value: 'Angular 18 (Expert), NestJS, React, Node.js, PrimeNG, RxJS, Bootstrap' },
-      { label: 'Architecture & Patterns:  ', value: 'Standalone Components, BFF, Lazy Loading, RBAC, Interceptor Chains, UMD Libraries, Scalable FE Architecture' },
-      { label: 'Auth & Security:  ', value: 'Keycloak, SSO, OAuth 2.0, OTP, JWT, RBAC, API Gateway, Auth0' },
-      { label: 'Tools & Practices:  ', value: 'Git, GitHub npm Registry, MySQL, REST APIs, Swagger/OpenAPI, CI/CD, Code Reviews, Agile/Scrum, JIRA' }
-    ];
-    skillsList.forEach(skill => {
+    data.skills.forEach(skill => {
       this.addSkill();
       this.skills.at(this.skills.length - 1).patchValue(skill);
     });
 
-    // Achievements
-    const achievementsList = [
-      'Replaced Auth0 with an in-house authentication package (@incred-engineers/auth-login), saving significant annual licensing costs and becoming the standard auth solution across all InCred portals.',
-      '500+ DSA problems solved across LeetCode, GeeksForGeeks, and CodeChef with strong focus on algorithms and data structures.',
-      'Newton Coding Contest \u2014 Global Rank 440 out of thousands of participants (April 2022).',
-      'Active participant in Hackathons, coding contests, and engineering community events.'
-    ];
-    achievementsList.forEach(a => {
+    data.achievements.forEach(a => {
       this.addAchievement();
       this.achievements.at(this.achievements.length - 1).setValue(a);
     });
+
+    this.keyAchievements = data.keyAchievements;
   }
+
+  // ===== Frontend-centric profile (Angular / UI focus) =====
+  private readonly frontendProfile: ResumeProfile = {
+    title: 'Software Engineer',
+    summary: 'Software Engineer with **4+ years** at InCred Financial Services, currently owning 2 active production portals (Ops Portal and File Tracker FE) using **Angular 18** and **RxJS**. Architected the **auth-login npm package**, providing SSO, OTP login, and access/refresh token management, **migrating 15+ portals from Auth0** and **eliminating 100% of enterprise licensing costs**. Expert in Angular 18, TypeScript, JavaScript (ES6+), RxJS, NestJS, Keycloak/OAuth 2.0, RBAC, CI/CD, and Agile/Scrum.',
+    experience: {
+      company: 'InCred Financial Services',
+      role: 'Software Engineer',
+      dateRange: 'Aug 2022 - Present',
+      subtitle: 'Currently owns Ops Portal and FTS; built org-wide auth-login npm package (15+ portals migrated from Auth0), UAM, SCF Connector, 150+ users',
+      subsections: [
+        {
+          title: 'Frontend Development and Architecture',
+          bullets: [
+            '**Architect and own** InCred Ops Portal and File Tracker (FTS) FE end-to-end - Angular 18 standalone components, lazy loading, RxJS, SCSS, PrimeNG - serving **150+ users** across 4 loan processing teams.',
+            '**Engineered scalable Angular project structures** with CI/CD pipelines, hash-based routing, and functional route guards - **zero-downtime deployments** across 4 environments with **100% page-level access control**.',
+            '**Delivered 6+ fintech portals** (Ops Portal, File Tracker, SCF Connector Onboarding, UAM, Admin Portal, Report Portal) collaborating with 4+ cross-functional product teams in Agile/Scrum sprints.',
+            '**Established reusable Angular component libraries** and architecture standards adopted across 5+ engineering teams - reducing new portal setup time by **up to 40%**.'
+          ]
+        },
+        {
+          title: 'Authentication, Authorization and Access Control',
+          bullets: [
+            '**Designed and published the auth-login npm package** (incred-engineers/auth-login), a framework-agnostic UMD package (Webpack 5) providing OTP login, SSO, OAuth 2.0, and Keycloak-integrated token management - **migrating 15+ portals from Auth0** and **eliminating 100% of licensing costs**.',
+            '**Built and owned the User Access Management (UAM) portal**: defined RBAC model, Angular 18 frontend, Keycloak integration, and audit logs managing **150+ users** across 3 environments.',
+            '**Implemented role-based route guards**, permission-driven UI rendering, and admin dashboards for user/role/group management - enforcing **100% RBAC compliance** across all InCred internal applications.'
+          ]
+        },
+        {
+          title: 'BFF Services and Full-Stack Contributions',
+          bullets: [
+            '**Designed and maintained OPS and FTS backend services** (NestJS 11, TypeScript) orchestrating microservices (Hermes, Document Service, UAM) with JWT middleware, Swagger/OpenAPI, and DTO validation.',
+            '**Developed and enhanced Admin Portal, Report Portal, and Keycloak configuration** - spanning Angular frontends, NestJS services, and identity infrastructure across multiple product teams.'
+          ]
+        }
+      ]
+    },
+    projects: [
+      {
+        name: 'InCred Ops Portal',
+        description: 'Owner and Architect (FE), Angular 18, SCSS, RxJS, PrimeNG, BFF, 150+ users, currently active',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/incred-ops-portal — Private, available on request'
+      },
+      {
+        name: 'InCred File Tracker (FTS)',
+        description: 'Owner and Architect (FE), Angular 18, SCSS, RxJS, TypeScript, concept to production, currently active',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/incred-dms-fe — Private, available on request'
+      },
+      {
+        name: 'auth-login npm package (incred-engineers)',
+        description: 'Owner and Architect, Webpack 5, UMD, Keycloak, SSO, OTP, OAuth 2.0, 15+ portals migrated from Auth0, 100% licensing cost eliminated',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/auth-login — Private, available on request'
+      },
+      {
+        name: 'User Access Management (UAM)',
+        description: 'Owner, End-to-End, Angular 18, RBAC, Keycloak, Audit Logs, 150+ users managed, 100% audit coverage',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/user-access-management — Private, available on request'
+      },
+      {
+        name: 'SCF Connector Onboarding',
+        description: 'Owner (FE), Angular 18, TypeScript, Supply Chain Finance workflows, concept to production',
+        githubUrl: '',
+        githubText: 'Internal Repository — Private, available on request'
+      },
+      {
+        name: 'OPS BFF and FTS BFF',
+        description: 'Owner and Developer, NestJS 11, TypeScript, REST API, Swagger/OpenAPI, JWT, microservices orchestration',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/bff-ops — Private, available on request'
+      }
+    ],
+    skills: [
+      { label: 'Languages: ', value: 'JavaScript (ES6+), TypeScript, HTML5, CSS3, SCSS/Sass, SQL, Python, Java, C++' },
+      { label: 'Frameworks & Libraries: ', value: 'Angular 18, React, Node.js, NestJS, RxJS, PrimeNG, Bootstrap, Webpack 5' },
+      { label: 'Architecture & Patterns: ', value: 'SPA, BFF, Standalone Components, Lazy Loading, RBAC, Interceptor Pattern, REST API, Microservices, Agile/Scrum' },
+      { label: 'Auth & Security: ', value: 'Keycloak, SSO, OAuth 2.0, OTP, JWT, RBAC, API Gateway, npm Package Development' },
+      { label: 'Testing & Tools: ', value: 'Karma, Jasmine, Jest, Git, GitHub, CI/CD, Swagger/OpenAPI, MySQL, JIRA, Code Review' },
+      { label: 'Soft Skills: ', value: 'Technical Leadership, Cross-Team Collaboration, Mentoring, Problem-Solving, Communication, Agile Delivery' }
+    ],
+    achievements: [
+      'Migrated 15+ enterprise portals from Auth0 to the auth-login npm package (in-house UMD auth library with SSO, OTP, access/refresh tokens) - eliminating 100% of annual licensing costs organization-wide.',
+      'Solved 500+ DSA problems (LeetCode, GFG, CodeChef); Global Rank 440 out of 10,000+ in Newton Coding Contest (Apr 2022).',
+      'Active contributor via internal tech talks, hackathons, and cross-team code reviews - driving engineering best practices at InCred.'
+    ],
+    keyAchievements: [
+      {
+        title: 'Auth0 Migration & Licensing Cost Elimination',
+        description: '**Migrated 15+ enterprise portals** from Auth0 to the in-house auth-login npm package (SSO, OTP, access/refresh tokens), **eliminating 100% of annual licensing costs** organization-wide.'
+      },
+      {
+        title: 'Competitive Programming',
+        description: '**Solved 500+ DSA problems** (LeetCode, GFG, CodeChef); **Global Rank 440** out of 10,000+ in Newton Coding Contest (Apr 2022).'
+      },
+      {
+        title: 'Engineering Community Contributor',
+        description: 'Active contributor via internal tech talks, hackathons, and cross-team code reviews - driving **engineering best practices** at InCred.'
+      }
+    ]
+  };
+
+  // ===== Backend / full-stack (Node.js) centric profile =====
+  private readonly backendProfile: ResumeProfile = {
+    title: 'Full-Stack Engineer (Node.js / Backend)',
+    summary: 'Full-Stack Software Engineer with **4+ years** at InCred Financial Services, specializing in **Node.js/NestJS** backend architecture. Own the OPS and FTS **BFF services** orchestrating microservices with **JWT auth** and Swagger/OpenAPI. Architected the **auth-login npm package** delivering SSO, OTP, and OAuth 2.0/Keycloak token management, **migrating 15+ portals off Auth0** and **eliminating 100% of licensing costs**. Skilled in Node.js, NestJS, TypeScript, REST APIs, microservices, RBAC, CI/CD, and Angular.',
+    experience: {
+      company: 'InCred Financial Services',
+      role: 'Software Engineer (Full-Stack / Backend)',
+      dateRange: 'Aug 2022 - Present',
+      subtitle: 'Owns OPS & FTS backend services (NestJS) and org-wide auth-login npm package; backend architecture for 6+ fintech portals serving 150+ users',
+      subsections: [
+        {
+          title: 'Backend Architecture & BFF Services',
+          bullets: [
+            '**Designed and maintained the OPS and FTS BFF services** in NestJS 11 and TypeScript, orchestrating microservices (Hermes, Document Service, UAM) with JWT middleware, Swagger/OpenAPI docs, and DTO validation.',
+            '**Built and exposed RESTful APIs** powering 6+ fintech portals (Ops Portal, File Tracker, SCF Connector, UAM, Admin Portal, Report Portal), handling request orchestration and response shaping for **150+ daily users**.',
+            '**Implemented centralized JWT-based authentication middleware** and role-guarded API endpoints, enforcing **100% RBAC compliance** at the service layer across all InCred internal applications.',
+            '**Established Node.js/NestJS service architecture standards** - modular structure, DTO validation, layered interceptors - adopted across 5+ teams, cutting new service bootstrap time by **up to 40%**.'
+          ]
+        },
+        {
+          title: 'Authentication, Authorization and Identity Systems',
+          bullets: [
+            '**Designed and published the auth-login npm package** (incred-engineers/auth-login), a Node.js/Webpack 5 UMD package providing OTP login, SSO, OAuth 2.0, and Keycloak-integrated token management - **migrating 15+ portals off Auth0** and **eliminating 100% of licensing costs**.',
+            '**Built and owned the User Access Management (UAM) service**: RBAC data model, Keycloak integration, and audit-log persistence via backend APIs, managing **150+ users** across 3 environments.',
+            '**Implemented token-refresh flows**, session/permission middleware, and audit logging at the API layer, enforcing role-based access control across all internal services.'
+          ]
+        },
+        {
+          title: 'Full-Stack Delivery & DevOps',
+          bullets: [
+            '**Delivered features end-to-end** across Angular 18 frontends and NestJS backends for **6+ fintech portals**, collaborating with 4+ product teams in Agile/Scrum sprints.',
+            '**Engineered CI/CD pipelines** (dev, QA, UAT, prod) for frontend and backend services, achieving **zero-downtime deployments** across 4 environments.'
+          ]
+        }
+      ]
+    },
+    projects: [
+      {
+        name: 'OPS BFF and FTS BFF',
+        description: 'Owner and Architect, NestJS 11, TypeScript, REST API, Swagger/OpenAPI, JWT, microservices orchestration, 150+ users',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/bff-ops — Private, available on request'
+      },
+      {
+        name: 'auth-login npm package (incred-engineers)',
+        description: 'Owner and Architect, Node.js, Webpack 5, UMD, Keycloak, SSO, OTP, OAuth 2.0, 15+ portals migrated from Auth0, 100% licensing cost eliminated',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/auth-login — Private, available on request'
+      },
+      {
+        name: 'User Access Management (UAM)',
+        description: 'Owner, Backend RBAC service + Angular frontend, Keycloak, Audit Logs, 150+ users managed, 100% audit coverage',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/user-access-management — Private, available on request'
+      },
+      {
+        name: 'InCred Ops Portal',
+        description: 'Full-Stack Owner (BFF + FE), NestJS, Angular 18, RxJS, PrimeNG, 150+ users, currently active',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/incred-ops-portal — Private, available on request'
+      },
+      {
+        name: 'InCred File Tracker (FTS)',
+        description: 'Full-Stack Owner, NestJS backend + Angular 18 FE, concept to production, currently active',
+        githubUrl: '',
+        githubText: 'github.com/Incred-Engineers/incred-dms-fe — Private, available on request'
+      },
+      {
+        name: 'SCF Connector Onboarding',
+        description: 'Full-Stack Owner, Node.js/Angular, Supply Chain Finance workflows, concept to production',
+        githubUrl: '',
+        githubText: 'Internal Repository — Private, available on request'
+      }
+    ],
+    skills: [
+      { label: 'Languages: ', value: 'JavaScript (ES6+), TypeScript, SQL, Python, Java, C++, HTML5, CSS3' },
+      { label: 'Backend & Runtime: ', value: 'Node.js, NestJS 11, REST API Design, Microservices, BFF Architecture, JWT, DTO Validation, Swagger/OpenAPI' },
+      { label: 'Auth & Security: ', value: 'Keycloak, OAuth 2.0, SSO, OTP, JWT, RBAC, API Gateway, npm Package Development' },
+      { label: 'Databases & Tools: ', value: 'MySQL, Git, GitHub, CI/CD, Jest, Karma, Jasmine, JIRA, Code Review' },
+      { label: 'Frontend (Full-Stack context): ', value: 'Angular 18, RxJS, PrimeNG, Bootstrap, Webpack 5' },
+      { label: 'Soft Skills: ', value: 'Technical Leadership, Cross-Team Collaboration, Mentoring, Problem-Solving, Communication, Agile Delivery' }
+    ],
+    achievements: [
+      'Migrated 15+ enterprise portals from Auth0 to the auth-login npm package (in-house Node.js/UMD auth library with SSO, OTP, access/refresh tokens) - eliminating 100% of annual licensing costs organization-wide.',
+      'Solved 500+ DSA problems (LeetCode, GFG, CodeChef); Global Rank 440 out of 10,000+ in Newton Coding Contest (Apr 2022).',
+      'Active contributor via internal tech talks, hackathons, and cross-team code reviews - driving backend engineering best practices at InCred.'
+    ],
+    keyAchievements: [
+      {
+        title: 'Auth0 Migration & Licensing Cost Elimination',
+        description: '**Migrated 15+ enterprise portals** from Auth0 to the in-house Node.js/UMD auth-login package (SSO, OTP, access/refresh tokens), **eliminating 100% of annual licensing costs** organization-wide.'
+      },
+      {
+        title: 'Competitive Programming',
+        description: '**Solved 500+ DSA problems** (LeetCode, GFG, CodeChef); **Global Rank 440** out of 10,000+ in Newton Coding Contest (Apr 2022).'
+      },
+      {
+        title: 'Engineering Community Contributor',
+        description: 'Active contributor via internal tech talks, hackathons, and cross-team code reviews - driving **backend engineering best practices** at InCred.'
+      }
+    ]
+  };
 }
