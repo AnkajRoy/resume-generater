@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,15 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'resume-generater';
+
+  constructor(private auth: AuthService, private router: Router) {}
+
+  get isAuthenticated(): boolean {
+    return this.auth.isAuthenticated();
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
 }
