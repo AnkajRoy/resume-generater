@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PdfGeneratorService } from '../../services/pdf-generator.service';
 import { DocGeneratorService } from '../../services/doc-generator.service';
+import { AuthService } from '../../services/auth.service';
 import { sampleFrontend, sampleBackend } from '../../data/sample-resumes';
 import { ResumeData } from '../../models/resume.model';
 
@@ -47,7 +48,7 @@ const MODERN_SECTIONS: MiniSection[] = [
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.css'
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit {
   activeTab = signal<'all' | 'software'>('all');
   modalCard = signal<ShowcaseCard | null>(null);
 
@@ -97,8 +98,27 @@ export class LandingComponent {
   constructor(
     private pdfService: PdfGeneratorService,
     private docService: DocGeneratorService,
+    private auth: AuthService,
     private router: Router
   ) {}
+
+  async ngOnInit() {
+    // Covers the email-confirmation redirect: Supabase sends the user back
+    // to the Site URL (this landing page) with the session in the URL —
+    // if that leaves them already signed in, route them to where they
+    // actually belong instead of leaving them stranded on the marketing page.
+    await this.auth.ready();
+    if (!this.auth.isAuthenticated()) {
+      return;
+    }
+    if (!this.auth.isApproved()) {
+      this.router.navigate(['/pending-approval']);
+    } else if (!this.auth.hasAccess()) {
+      this.router.navigate(['/payment']);
+    } else {
+      this.router.navigate(['/app']);
+    }
+  }
 
   goToLogin() {
     this.router.navigate(['/login']);
