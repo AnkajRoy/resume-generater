@@ -105,12 +105,21 @@ export class AuthService {
       this.supabase.client.auth.onAuthStateChange((event, session) => {
         this.session.set(session);
         if (session) {
-          setTimeout(() => { this.loadProfile(session.user.id); }, 0);
+          // Deferred (not awaited here) to dodge the deadlock above, but
+          // ready() must still wait for it to finish — otherwise guards can
+          // run isApproved()/hasAccess() against a still-null profile right
+          // after a page refresh.
+          setTimeout(async () => {
+            await this.loadProfile(session.user.id);
+            if (event === 'INITIAL_SESSION') {
+              resolve();
+            }
+          }, 0);
         } else {
           this.profile.set(null);
-        }
-        if (event === 'INITIAL_SESSION') {
-          resolve();
+          if (event === 'INITIAL_SESSION') {
+            resolve();
+          }
         }
       });
     });

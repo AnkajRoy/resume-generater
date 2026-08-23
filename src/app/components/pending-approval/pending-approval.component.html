@@ -7,7 +7,12 @@
         Your account has been created but hasn't been approved yet. You'll be able to sign in
         once an admin approves your access.
       </p>
-      <button type="button" class="btn btn-outline-secondary" (click)="logout()">Log out</button>
+      <div class="d-flex gap-2 justify-content-center">
+        <button type="button" class="btn btn-primary" [disabled]="checking()" (click)="checkAgain()">
+          {{ checking() ? 'Checking...' : 'Check Again' }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="logout()">Log out</button>
+      </div>
     </div>
   </div>
 </div>
