@@ -59,7 +59,14 @@
   margin-top: -2px;
 }
 
-.back-link {
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.back-link,
+.contact-link {
   color: #475467;
   font-size: 14px;
   font-weight: 500;
@@ -68,7 +75,8 @@
   transition: 0.2s;
 }
 
-.back-link:hover {
+.back-link:hover,
+.contact-link:hover {
   color: #635bff;
 }
 
@@ -92,6 +100,10 @@
 
 @media (max-width: 450px) {
   .brand-text {
+    display: none;
+  }
+
+  .contact-link {
     display: none;
   }
 }

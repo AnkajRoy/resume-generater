@@ -15,3 +15,13 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+.footer-contact a {
+  color: #98a2b3;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.footer-contact a:hover {
+  color: #635bff;
+}

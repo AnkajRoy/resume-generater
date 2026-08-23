@@ -8,10 +8,13 @@
       </div>
     </a>
 
-    @if (showLogout) {
-      <button type="button" class="logout-link" (click)="logout()">Logout</button>
-    } @else {
-      <a class="back-link" (click)="goHome()">← Back to home</a>
-    }
+    <div class="header-actions">
+      <a class="contact-link" href="https://ankajroy.github.io/myPortFolio/" target="_blank" rel="noopener">Contact Us</a>
+      @if (showLogout) {
+        <button type="button" class="logout-link" (click)="logout()">Logout</button>
+      } @else {
+        <a class="back-link" (click)="goHome()">← Back to home</a>
+      }
+    </div>
   </nav>
 </header>
