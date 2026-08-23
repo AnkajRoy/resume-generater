@@ -2,7 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { PdfGeneratorService } from '../../services/pdf-generator.service';
+import { UsageService } from '../../services/usage.service';
 import { ResumeData } from '../../models/resume.model';
+import { SiteHeaderComponent } from '../shared/site-header/site-header.component';
+import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
 
 type ProfileKey = 'frontend' | 'backend';
 
@@ -27,7 +30,7 @@ interface ResumeProfile {
 @Component({
   selector: 'app-resume-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SiteHeaderComponent, SiteFooterComponent],
   templateUrl: './resume-form.component.html',
   styleUrl: './resume-form.component.css'
 })
@@ -39,7 +42,7 @@ export class ResumeFormComponent {
   templateStyle: 'classic' | 'modern' = 'classic';
   keyAchievements: { title: string; description: string }[] = [];
 
-  constructor(private fb: FormBuilder, private pdfService: PdfGeneratorService) {
+  constructor(private fb: FormBuilder, private pdfService: PdfGeneratorService, private usageService: UsageService) {
     this.form = this.buildForm();
 
     this.form.patchValue({
@@ -178,6 +181,7 @@ export class ResumeFormComponent {
     } else {
       this.pdfService.generate(data);
     }
+    this.usageService.recordGeneration(this.activeProfile, this.templateStyle);
     this.message = 'PDF Downloaded! All links are clickable.';
     this.messageType = 'success';
   }

@@ -1,9 +1,16 @@
+<app-site-header></app-site-header>
+
 <div class="login-page d-flex align-items-center justify-content-center">
   <div class="card login-card shadow-sm">
     <div class="card-body p-4">
       <div class="text-center mb-4">
         <h1 class="fw-bold text-primary h3 mb-1">Resume PDF Generator</h1>
-        <p class="text-muted small mb-0">Sign in to continue</p>
+        <p class="text-muted small mb-0">
+          {{ mode() === 'signin' ? 'Sign in to continue' : 'Create an account' }}
+        </p>
+        @if (totalGenerated() !== null && totalGenerated()! > 0) {
+          <p class="text-muted small mt-2 mb-0">🎉 {{ totalGenerated() }} resumes generated so far</p>
+        }
       </div>
 
       <form [formGroup]="form" (ngSubmit)="submit()">
@@ -27,18 +34,35 @@
             type="password"
             class="form-control form-control-lg"
             placeholder="Password"
-            autocomplete="current-password">
+            [autocomplete]="mode() === 'signin' ? 'current-password' : 'new-password'">
           @if (form.get('password')?.touched && form.get('password')?.invalid) {
-            <div class="form-text text-danger">Password is required.</div>
+            <div class="form-text text-danger">Password must be at least 6 characters.</div>
           }
         </div>
 
         @if (error) {
           <div class="alert alert-danger py-2 small" role="alert">{{ error }}</div>
         }
+        @if (info) {
+          <div class="alert alert-success py-2 small" role="alert">{{ info }}</div>
+        }
 
-        <button type="submit" class="btn btn-primary btn-lg w-100 mt-2">Sign In</button>
+        <button type="submit" class="btn btn-primary btn-lg w-100 mt-2" [disabled]="loading()">
+          @if (loading()) {
+            {{ mode() === 'signin' ? 'Signing in...' : 'Creating account...' }}
+          } @else {
+            {{ mode() === 'signin' ? 'Sign In' : 'Sign Up' }}
+          }
+        </button>
       </form>
+
+      <div class="text-center mt-3">
+        <button type="button" class="btn btn-link btn-sm text-decoration-none" (click)="toggleMode()">
+          {{ mode() === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>
+
+<app-site-footer></app-site-footer>

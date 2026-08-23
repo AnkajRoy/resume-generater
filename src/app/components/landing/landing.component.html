@@ -1,0 +1,429 @@
+<header class="header">
+  <nav class="nav">
+    <a class="brand" (click)="scrollTo('top')">
+      <div class="brand-logo">AK</div>
+      <div class="brand-text">
+        <strong>AK ResumeBuilder</strong>
+        <span>Career-ready resumes</span>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a (click)="scrollTo('why')">Why Resume</a>
+      <a (click)="scrollTo('ats')">ATS Optimization</a>
+      <a (click)="scrollTo('templates')">Templates</a>
+      <a (click)="scrollTo('how')">How It Works</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="ak-btn ak-btn-outline" (click)="goToLogin()">Sign in</button>
+      <button class="ak-btn ak-btn-primary" (click)="goToLogin()">Build Resume</button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-container">
+      <div>
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          ATS-Optimized Resume Builder
+        </div>
+
+        <h1>Build a resume that <span class="gradient-text">gets noticed.</span></h1>
+
+        <p class="hero-description">
+          Create a professionally structured, ATS-friendly resume designed around your skills, experience
+          and target job. AK ResumeBuilder helps you turn your career story into a resume recruiters can
+          quickly understand — and applicant tracking systems can easily parse.
+        </p>
+
+        <div class="hero-actions">
+          <button class="ak-btn ak-btn-primary" (click)="goToLogin()">Create My Resume →</button>
+          <button class="ak-btn ak-btn-outline" (click)="scrollTo('templates')">Explore Templates</button>
+        </div>
+
+        <div class="hero-trust">
+          <span class="trust-check">✓</span>
+          <span>ATS-friendly structure</span>
+          <span class="trust-check">✓</span>
+          <span>Recruiter-focused formatting</span>
+        </div>
+      </div>
+
+      <div class="hero-preview">
+        <div class="resume-card resume-card-back">
+          <div class="resume-name">Ankaj Kumar</div>
+          <div class="resume-role">SOFTWARE ENGINEER</div>
+          <div class="resume-line"></div>
+          <div class="resume-section">
+            <div class="resume-section-title">EXPERIENCE</div>
+            <div class="resume-text long"></div>
+            <div class="resume-text medium"></div>
+            <div class="resume-text short"></div>
+            <div class="resume-text medium"></div>
+          </div>
+        </div>
+
+        <div class="resume-card">
+          <div class="resume-name">Ankaj Kumar</div>
+          <div class="resume-role">FULL STACK SOFTWARE ENGINEER</div>
+          <div class="resume-contact">Bengaluru, India · +91 XXXXX XXXXX · ankaj&#64;email.com</div>
+          <div class="resume-line"></div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Professional Summary</div>
+            <div class="resume-text long"></div>
+            <div class="resume-text long"></div>
+            <div class="resume-text medium"></div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Experience</div>
+            <div class="resume-text long"></div>
+            <div class="resume-text medium"></div>
+            <div class="resume-text long"></div>
+            <div class="resume-text short"></div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Skills</div>
+            <div class="resume-text long"></div>
+            <div class="resume-text medium"></div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Education</div>
+            <div class="resume-text medium"></div>
+            <div class="resume-text short"></div>
+          </div>
+        </div>
+
+        <div class="ats-badge">
+          <div class="ats-circle"><span>94%</span></div>
+          <div class="ats-text">
+            <strong>ATS Ready</strong>
+            <span>Strong resume structure</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stats-container">
+      <div class="stat"><strong>4</strong><span>ATS Resume Templates</span></div>
+      <div class="stat"><strong>94%</strong><span>Sample ATS Score</span></div>
+      <div class="stat"><strong>100%</strong><span>Recruiter-focused</span></div>
+      <div class="stat"><strong>1-click</strong><span>Resume Generation</span></div>
+    </div>
+  </div>
+
+  <!-- WHY -->
+  <section class="section" id="why">
+    <div class="section-header">
+      <div class="section-label">Why Your Resume Matters</div>
+      <h2 class="section-title">Your resume is more than a document. It's your first career impression.</h2>
+      <p class="section-description">
+        Recruiters often review a large number of applications. A strong resume makes your value clear
+        quickly, while a poorly structured resume can hide even excellent experience. AK ResumeBuilder
+        focuses on clarity, relevance and measurable impact.
+      </p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">◈</div>
+        <h3>Get past the first filter</h3>
+        <p>Use a clean, structured resume format with recognizable sections and relevant keywords so your information is easier for applicant tracking systems to process.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">✦</div>
+        <h3>Show your real impact</h3>
+        <p>Transform responsibilities into achievement-focused statements that communicate what you delivered, how you contributed and what changed because of your work.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">◎</div>
+        <h3>Look professional instantly</h3>
+        <p>Choose a polished layout designed to balance recruiter readability with ATS compatibility instead of unnecessary visual decoration.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ATS -->
+  <section class="section" id="ats">
+    <div class="ats-section">
+      <div class="ats-content">
+        <div>
+          <div class="section-label">ATS Intelligence</div>
+          <h2>Designed for software. Refined for humans.</h2>
+          <p>
+            Your resume should work for both sides of the hiring process. AK ResumeBuilder uses standard
+            section names, readable typography, clean hierarchy and keyword-focused content so your
+            experience remains easy to understand.
+          </p>
+
+          <div class="ats-checks">
+            <div class="ats-check"><i>✓</i>Standard resume sections</div>
+            <div class="ats-check"><i>✓</i>Keyword optimization</div>
+            <div class="ats-check"><i>✓</i>Clean single-column layouts</div>
+            <div class="ats-check"><i>✓</i>Recruiter-readable formatting</div>
+            <div class="ats-check"><i>✓</i>Achievement-focused bullets</div>
+            <div class="ats-check"><i>✓</i>Professional typography</div>
+          </div>
+        </div>
+
+        <div class="score-card">
+          <div class="score-top">
+            <div>
+              <span>Resume Readiness</span>
+              <div class="score-number">94</div>
+            </div>
+            <div><span>Excellent</span></div>
+          </div>
+          <div class="progress"><span></span></div>
+          <div class="score-items">
+            <div class="score-item"><span>Structure</span><strong>Excellent</strong></div>
+            <div class="score-item"><span>Keywords</span><strong>Strong</strong></div>
+            <div class="score-item"><span>Readability</span><strong>Excellent</strong></div>
+            <div class="score-item"><span>Experience</span><strong>Strong</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEMPLATES -->
+  <section class="section" id="templates">
+    <div class="section-header">
+      <div class="section-label">Resume Templates</div>
+      <h2 class="section-title">Four ways to present your career story.</h2>
+      <p class="section-description">
+        Every AK ResumeBuilder template follows an ATS-first philosophy while giving you enough visual
+        personality to create a strong professional impression. Sample downloads are watermarked —
+        sign in to generate your own, unwatermarked resume.
+      </p>
+    </div>
+
+    <div class="template-toolbar">
+      <div class="template-tabs">
+        <button class="template-tab" [class.active]="activeTab() === 'all'" (click)="setActiveTab('all')">All Templates</button>
+        <button class="template-tab" [class.active]="activeTab() === 'software'" (click)="setActiveTab('software')">Software Engineering</button>
+      </div>
+    </div>
+
+    <div class="templates-grid">
+      @for (card of cards; track card.key) {
+        <div class="template-card">
+          <div class="template-preview" [class.classic]="card.previewClass === 'classic'" [class.modern]="card.previewClass === 'modern'" (click)="openModal(card)">
+            <div class="tp-name" [style.color]="card.previewClass === 'modern' ? '#635bff' : null">Alex Morgan</div>
+            <div class="tp-role">{{ card.roleLabel }}</div>
+            <div class="tp-contact">Austin, TX · Email · LinkedIn · Phone</div>
+            <div class="tp-divider" [style.background]="card.previewClass === 'modern' ? '#635bff' : null"></div>
+
+            @for (sec of card.sections; track sec.heading) {
+              <div class="tp-heading">{{ sec.heading }}</div>
+              @for (w of sec.widths; track w) {
+                <div class="tp-line" [class.w90]="w === 'w90'" [class.w80]="w === 'w80'" [class.w65]="w === 'w65'"></div>
+              }
+            }
+          </div>
+
+          <div class="template-info">
+            <div class="template-info-row">
+              <div>
+                <h3>{{ card.name }}</h3>
+                <p>{{ card.tagline }}</p>
+              </div>
+              <span class="ats-mini">ATS ✓</span>
+            </div>
+
+            <div class="template-buttons">
+              <button class="template-button" (click)="downloadPdf(card, $event)">Sample PDF</button>
+              <button class="template-button" (click)="downloadDoc(card, $event)">Sample DOC</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="section-header">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">From blank page to job-ready resume.</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">01</div>
+        <h3>Add your profile</h3>
+        <p>Enter your experience, education, skills, projects and achievements once.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">02</div>
+        <h3>Choose a template</h3>
+        <p>Select from four professional ATS-friendly designs built for different career profiles.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">03</div>
+        <h3>Optimize your content</h3>
+        <p>Improve keywords, achievements, structure and readability against your target role.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">04</div>
+        <h3>Generate & apply</h3>
+        <p>Create your final resume and use it confidently for your next job application.</p>
+      </div>
+    </div>
+
+    <div class="cta">
+      <div class="cta-content">
+        <h2>Ready to build your next opportunity?</h2>
+        <p>Start with your experience. We'll help turn it into a professional, ATS-friendly resume designed for the job you want next.</p>
+        <button class="ak-btn ak-btn-primary" (click)="goToLogin()">Build My Resume →</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-container">
+    <div class="footer-brand">
+      <a class="brand" (click)="scrollTo('top')">
+        <div class="brand-logo">AK</div>
+        <div class="brand-text">
+          <strong>AK ResumeBuilder</strong>
+          <span>Career-ready resumes</span>
+        </div>
+      </a>
+      <p>A modern resume-building experience focused on clarity, ATS compatibility and helping professionals present their career story with confidence.</p>
+    </div>
+
+    <div class="footer-column">
+      <h4>Product</h4>
+      <a (click)="scrollTo('templates')">Templates</a>
+      <a (click)="scrollTo('ats')">ATS Optimization</a>
+      <a (click)="scrollTo('how')">How It Works</a>
+      <a (click)="goToLogin()">Resume Builder</a>
+    </div>
+
+    <div class="footer-column">
+      <h4>Resources</h4>
+      <a>Resume Guide</a>
+      <a>ATS Guide</a>
+      <a>Career Tips</a>
+      <a>Interview Prep</a>
+    </div>
+
+    <div class="footer-column">
+      <h4>Company</h4>
+      <a>About</a>
+      <a>Contact</a>
+      <a>Privacy</a>
+      <a>Terms</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2026 AK ResumeBuilder. All rights reserved.</span>
+    <span>Built for better career opportunities.</span>
+  </div>
+</footer>
+
+<!-- TEMPLATE MODAL -->
+@if (modalCard(); as card) {
+  <div class="modal show" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeModal()">×</button>
+
+      <h2 class="modal-title">{{ card.name }}</h2>
+      <p class="modal-subtitle">ATS-friendly resume template preview — real sample content</p>
+
+      @if (card.previewClass === 'classic') {
+        <div class="modal-resume">
+          <div class="tp-name modal-name">{{ card.data.personalInfo.name }}</div>
+          <div class="tp-role modal-role">{{ card.data.personalInfo.title.toUpperCase() }}</div>
+          <div class="tp-contact modal-contact">
+            {{ card.data.personalInfo.location }} · {{ card.data.personalInfo.phone }} · {{ card.data.personalInfo.email }} · LinkedIn
+          </div>
+          <div class="tp-divider"></div>
+
+          <div class="tp-heading modal-heading">Professional Summary</div>
+          <p class="modal-summary">{{ card.data.summary }}</p>
+
+          <div class="tp-heading modal-heading">Professional Experience</div>
+          <p class="modal-exp-role">{{ card.data.experiences[0].role }}</p>
+          <p class="modal-exp-meta">{{ card.data.experiences[0].company }} · {{ card.data.personalInfo.location }} · {{ card.data.experiences[0].dateRange }}</p>
+          <ul class="modal-bullets">
+            @for (b of modalBullets; track b) {
+              <li>{{ b }}</li>
+            }
+          </ul>
+
+          <div class="tp-heading modal-heading">Technical Skills</div>
+          <p class="modal-skills">{{ modalSkillsText }}</p>
+
+          <div class="tp-heading modal-heading">Education</div>
+          <p class="modal-edu">{{ card.data.education.degree }} · {{ card.data.education.institution }}</p>
+        </div>
+      } @else {
+        <div class="modal-resume modal-resume-modern">
+          <div class="modal-modern-header">
+            <div class="tp-name modal-name" style="color:#635bff;">{{ card.data.personalInfo.name }}</div>
+            <div class="tp-role modal-role">{{ card.data.personalInfo.title.toUpperCase() }}</div>
+            <div class="tp-contact modal-contact">
+              {{ card.data.personalInfo.location }} · {{ card.data.personalInfo.phone }} · {{ card.data.personalInfo.email }}
+            </div>
+          </div>
+
+          <div class="modal-modern-cols">
+            <div class="modal-col-left">
+              <div class="tp-heading modal-heading">Summary</div>
+              <p class="modal-summary">{{ card.data.summary }}</p>
+
+              <div class="tp-heading modal-heading">Experience</div>
+              <p class="modal-exp-role">{{ card.data.experiences[0].role }}</p>
+              <p class="modal-exp-meta" style="color:#635bff;">{{ card.data.experiences[0].company }}</p>
+              <p class="modal-exp-meta">{{ card.data.experiences[0].dateRange }}</p>
+              <ul class="modal-bullets">
+                @for (b of modalBullets; track b) {
+                  <li>{{ b }}</li>
+                }
+              </ul>
+            </div>
+
+            <div class="modal-col-right">
+              <div class="tp-heading modal-heading">Key Achievements</div>
+              @for (ka of (card.data.keyAchievements ?? []).slice(0, 2); track ka.title) {
+                <p class="modal-ka-title">{{ ka.title }}</p>
+                <p class="modal-ka-desc">{{ ka.description.replaceAll('**', '') }}</p>
+              }
+
+              <div class="tp-heading modal-heading">Skills</div>
+              @for (s of card.data.skills.slice(0, 3); track s.label) {
+                <p class="modal-skill-label" style="color:#635bff;">{{ s.label.replace(':', '') }}</p>
+                <p class="modal-skills">{{ s.value }}</p>
+              }
+
+              <div class="tp-heading modal-heading">Education</div>
+              <p class="modal-edu">{{ card.data.education.degree }}</p>
+              <p class="modal-edu">{{ card.data.education.institution }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="ak-btn ak-btn-primary" (click)="downloadPdf(card)">Download Sample PDF</button>
+        <button class="ak-btn ak-btn-outline" (click)="downloadDoc(card)">Download Sample DOC</button>
+      </div>
+    </div>
+  </div>
+}

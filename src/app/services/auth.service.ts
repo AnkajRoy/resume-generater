@@ -1,29 +1,111 @@
 import { Injectable, signal } from '@angular/core';
+import { Session } from '@supabase/supabase-js';
+import { SupabaseService } from './supabase.service';
 
-// Static credential check for now — will be replaced by real authentication later.
-const VALID_EMAIL = 'ankajkuray@gmail.com';
-const VALID_PASSWORD = 'ankaj2001';
-const STORAGE_KEY = 'resume_app_authenticated';
+export interface Profile {
+  id: string;
+  email: string;
+  approved: boolean;
+  role: 'free' | 'premium';
+  is_paid: boolean;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private authenticated = signal<boolean>(sessionStorage.getItem(STORAGE_KEY) === 'true');
+  session = signal<Session | null>(null);
+  profile = signal<Profile | null>(null);
+
+  private initPromise: Promise<void>;
+
+  constructor(private supabase: SupabaseService) {
+    this.initPromise = this.init();
+  }
+
+  /** Resolves once the initial session restore (from local storage) has completed. */
+  ready(): Promise<void> {
+    return this.initPromise;
+  }
 
   isAuthenticated(): boolean {
-    return this.authenticated();
+    return !!this.session();
   }
 
-  login(email: string, password: string): boolean {
-    const ok = email.trim().toLowerCase() === VALID_EMAIL && password === VALID_PASSWORD;
-    if (ok) {
-      this.authenticated.set(true);
-      sessionStorage.setItem(STORAGE_KEY, 'true');
+  isApproved(): boolean {
+    return this.profile()?.approved === true;
+  }
+
+  isPremium(): boolean {
+    return this.profile()?.role === 'premium';
+  }
+
+  /** True once the user can reach the actual generator: premium bypasses payment entirely. */
+  hasAccess(): boolean {
+    return this.isPremium() || this.profile()?.is_paid === true;
+  }
+
+  async signUp(email: string, password: string): Promise<{ error: string | null }> {
+    const { error } = await this.supabase.client.auth.signUp({ email, password });
+    return { error: error?.message ?? null };
+  }
+
+  async signIn(email: string, password: string): Promise<{ error: string | null }> {
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({ email, password });
+    if (error) {
+      return { error: error.message };
     }
-    return ok;
+    if (data.session) {
+      this.session.set(data.session);
+      await this.loadProfile(data.session.user.id);
+    }
+    return { error: null };
   }
 
-  logout(): void {
-    this.authenticated.set(false);
-    sessionStorage.removeItem(STORAGE_KEY);
+  async signOut(): Promise<void> {
+    await this.supabase.client.auth.signOut();
+    this.session.set(null);
+    this.profile.set(null);
+  }
+
+  private init(): Promise<void> {
+    // Wait for the client's first INITIAL_SESSION event rather than calling
+    // getSession() directly — that event only fires after Supabase has
+    // finished detecting/consuming any session tokens in the URL (e.g. from
+    // an email-confirmation redirect), so the guard never checks too early.
+    //
+    // IMPORTANT: never call another Supabase client method synchronously
+    // inside this callback — the client holds an internal lock while it
+    // runs, and a nested call (like loadProfile's query) needing that same
+    // lock will deadlock forever. Deferring via setTimeout lets the lock
+    // release first.
+    return new Promise<void>(resolve => {
+      this.supabase.client.auth.onAuthStateChange((event, session) => {
+        this.session.set(session);
+        if (session) {
+          setTimeout(() => { this.loadProfile(session.user.id); }, 0);
+        } else {
+          this.profile.set(null);
+        }
+        if (event === 'INITIAL_SESSION') {
+          resolve();
+        }
+      });
+    });
+  }
+
+  private async loadProfile(userId: string): Promise<void> {
+    const { data } = await this.supabase.client
+      .from('profiles')
+      .select('id, email, approved, role, is_paid')
+      .eq('id', userId)
+      .single();
+    this.profile.set((data as Profile) ?? null);
+  }
+
+  /** Re-fetches the current user's profile — call after claiming a payment so hasAccess() stays accurate. */
+  async refreshProfile(): Promise<void> {
+    const userId = this.session()?.user.id;
+    if (userId) {
+      await this.loadProfile(userId);
+    }
   }
 }

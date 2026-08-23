@@ -1,0 +1,2959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AK ResumeBuilder — Build a Resume That Gets Noticed</title>
+
+  <meta
+    name="description"
+    content="AK ResumeBuilder — Create professional, ATS-friendly resumes designed to help you stand out and get noticed."
+  />
+
+  <style>
+    :root {
+      --primary: #635bff;
+      --primary-dark: #5048dc;
+      --secondary: #8b5cf6;
+      --accent: #06b6d4;
+
+      --bg: #f7f8fc;
+      --surface: #ffffff;
+      --surface-soft: #f1f3f9;
+
+      --text: #111827;
+      --text-secondary: #667085;
+      --border: #e6e8ef;
+
+      --success: #12b76a;
+      --warning: #f79009;
+
+      --shadow-sm:
+        0 2px 8px rgba(16, 24, 40, 0.04);
+
+      --shadow:
+        0 15px 45px rgba(16, 24, 40, 0.08);
+
+      --shadow-lg:
+        0 30px 80px rgba(16, 24, 40, 0.14);
+
+      --radius-sm: 10px;
+      --radius: 16px;
+      --radius-lg: 24px;
+
+      --max-width: 1240px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* =========================
+       HEADER
+    ========================== */
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      height: 76px;
+
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(20px);
+
+      border-bottom: 1px solid rgba(230, 232, 239, 0.8);
+    }
+
+    .nav {
+      max-width: var(--max-width);
+      height: 100%;
+      margin: auto;
+
+      padding: 0 24px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+
+      border-radius: 12px;
+
+      display: grid;
+      place-items: center;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary),
+          var(--secondary)
+        );
+
+      color: white;
+      font-weight: 800;
+      font-size: 14px;
+
+      box-shadow:
+        0 8px 25px rgba(99, 91, 255, 0.28);
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-text span {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 11px;
+      margin-top: -2px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #475467;
+      font-size: 14px;
+      font-weight: 500;
+
+      transition: 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 17px;
+
+      font-size: 14px;
+      font-weight: 650;
+
+      transition:
+        transform 0.2s,
+        box-shadow 0.2s,
+        background 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: white;
+      border: 1px solid var(--border);
+      color: #344054;
+    }
+
+    .btn-primary {
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary),
+          var(--secondary)
+        );
+
+      box-shadow:
+        0 8px 20px rgba(99, 91, 255, 0.25);
+    }
+
+    .btn-primary:hover {
+      box-shadow:
+        0 12px 30px rgba(99, 91, 255, 0.32);
+    }
+
+    /* =========================
+       HERO
+    ========================== */
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+
+      padding: 92px 24px 80px;
+
+      background:
+        radial-gradient(
+          circle at 10% 10%,
+          rgba(99, 91, 255, 0.10),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 90% 30%,
+          rgba(6, 182, 212, 0.10),
+          transparent 28%
+        );
+    }
+
+    .hero-container {
+      max-width: var(--max-width);
+      margin: auto;
+
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 7px 12px;
+
+      border-radius: 30px;
+
+      background: #eeedff;
+      color: var(--primary);
+
+      font-size: 12px;
+      font-weight: 700;
+
+      margin-bottom: 22px;
+    }
+
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--success);
+      border-radius: 50%;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 5vw, 68px);
+      line-height: 1.03;
+      letter-spacing: -3px;
+      max-width: 720px;
+    }
+
+    .gradient-text {
+      background:
+        linear-gradient(
+          90deg,
+          var(--primary),
+          var(--secondary),
+          var(--accent)
+        );
+
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-description {
+      margin-top: 24px;
+
+      max-width: 630px;
+
+      color: var(--text-secondary);
+
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      margin-top: 26px;
+
+      color: #667085;
+      font-size: 12px;
+    }
+
+    .trust-check {
+      width: 22px;
+      height: 22px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 50%;
+
+      background: #e8f8f0;
+      color: var(--success);
+
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* =========================
+       HERO RESUME VISUAL
+    ========================== */
+
+    .hero-preview {
+      position: relative;
+      min-height: 470px;
+    }
+
+    .resume-card {
+      position: absolute;
+
+      width: 340px;
+      height: 455px;
+
+      background: white;
+
+      border-radius: 6px;
+
+      box-shadow: var(--shadow-lg);
+
+      padding: 34px;
+
+      transform: rotate(3deg);
+
+      right: 35px;
+      top: 5px;
+
+      border: 1px solid #e7e8ee;
+    }
+
+    .resume-card-back {
+      transform: rotate(-7deg);
+      right: 105px;
+      top: 38px;
+
+      opacity: 0.65;
+      box-shadow: var(--shadow);
+    }
+
+    .resume-name {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .resume-role {
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+
+    .resume-contact {
+      margin-top: 12px;
+
+      font-size: 7px;
+      color: #667085;
+    }
+
+    .resume-line {
+      height: 2px;
+      background: #111827;
+      margin: 17px 0;
+    }
+
+    .resume-section {
+      margin-top: 15px;
+    }
+
+    .resume-section-title {
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+
+      margin-bottom: 7px;
+    }
+
+    .resume-text {
+      height: 5px;
+      background: #e8eaf0;
+      border-radius: 10px;
+      margin: 5px 0;
+    }
+
+    .resume-text.short {
+      width: 68%;
+    }
+
+    .resume-text.medium {
+      width: 84%;
+    }
+
+    .resume-text.long {
+      width: 96%;
+    }
+
+    .ats-badge {
+      position: absolute;
+
+      right: -22px;
+      bottom: 45px;
+
+      background: white;
+
+      padding: 16px 18px;
+
+      border-radius: 16px;
+
+      box-shadow: var(--shadow);
+
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ats-circle {
+      width: 54px;
+      height: 54px;
+
+      border-radius: 50%;
+
+      display: grid;
+      place-items: center;
+
+      background:
+        conic-gradient(
+          var(--success) 0 94%,
+          #e8edf2 94% 100%
+        );
+
+      position: relative;
+    }
+
+    .ats-circle::after {
+      content: "";
+
+      position: absolute;
+
+      width: 43px;
+      height: 43px;
+
+      background: white;
+      border-radius: 50%;
+    }
+
+    .ats-circle span {
+      position: relative;
+      z-index: 1;
+
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .ats-text strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .ats-text span {
+      display: block;
+
+      color: var(--text-secondary);
+
+      font-size: 11px;
+    }
+
+    /* =========================
+       STATS
+    ========================== */
+
+    .stats {
+      max-width: var(--max-width);
+      margin: -25px auto 0;
+
+      position: relative;
+      z-index: 5;
+
+      padding: 0 24px;
+    }
+
+    .stats-container {
+      background: white;
+
+      border: 1px solid var(--border);
+
+      border-radius: 18px;
+
+      box-shadow: var(--shadow-sm);
+
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat {
+      padding: 25px;
+
+      text-align: center;
+
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:last-child {
+      border-right: none;
+    }
+
+    .stat strong {
+      font-size: 23px;
+      letter-spacing: -1px;
+    }
+
+    .stat span {
+      display: block;
+
+      color: var(--text-secondary);
+
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    /* =========================
+       GENERAL SECTION
+    ========================== */
+
+    .section {
+      max-width: var(--max-width);
+
+      margin: auto;
+
+      padding: 105px 24px;
+    }
+
+    .section-header {
+      max-width: 720px;
+      margin-bottom: 45px;
+    }
+
+    .section-label {
+      color: var(--primary);
+
+      font-size: 12px;
+      font-weight: 800;
+
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 39px;
+
+      line-height: 1.15;
+
+      letter-spacing: -1.7px;
+    }
+
+    .section-description {
+      color: var(--text-secondary);
+
+      margin-top: 14px;
+
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    /* =========================
+       WHY RESUME
+    ========================== */
+
+    .why-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 18px;
+    }
+
+    .why-card {
+      background: white;
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--radius);
+
+      padding: 28px;
+
+      transition: 0.25s;
+    }
+
+    .why-card:hover {
+      transform: translateY(-5px);
+
+      box-shadow: var(--shadow);
+    }
+
+    .why-icon {
+      width: 46px;
+      height: 46px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 13px;
+
+      background: #f0efff;
+
+      color: var(--primary);
+
+      font-size: 20px;
+
+      margin-bottom: 20px;
+    }
+
+    .why-card h3 {
+      font-size: 17px;
+      margin-bottom: 9px;
+    }
+
+    .why-card p {
+      color: var(--text-secondary);
+
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       ATS SECTION
+    ========================== */
+
+    .ats-section {
+      background: #111827;
+      color: white;
+
+      border-radius: 28px;
+
+      overflow: hidden;
+
+      position: relative;
+    }
+
+    .ats-section::before {
+      content: "";
+
+      position: absolute;
+
+      width: 500px;
+      height: 500px;
+
+      background: #635bff;
+
+      filter: blur(130px);
+
+      opacity: 0.18;
+
+      right: -150px;
+      top: -200px;
+    }
+
+    .ats-content {
+      position: relative;
+
+      padding: 65px;
+
+      display: grid;
+
+      grid-template-columns: 1fr 0.8fr;
+
+      gap: 60px;
+
+      align-items: center;
+    }
+
+    .ats-content h2 {
+      font-size: 39px;
+
+      line-height: 1.15;
+
+      letter-spacing: -1.5px;
+    }
+
+    .ats-content p {
+      margin-top: 17px;
+
+      color: #aab3c2;
+
+      font-size: 14px;
+
+      line-height: 1.8;
+    }
+
+    .ats-checks {
+      display: grid;
+
+      grid-template-columns: repeat(2, 1fr);
+
+      gap: 12px;
+
+      margin-top: 25px;
+    }
+
+    .ats-check {
+      display: flex;
+
+      gap: 9px;
+
+      align-items: center;
+
+      color: #d7dce5;
+
+      font-size: 12px;
+    }
+
+    .ats-check i {
+      width: 20px;
+      height: 20px;
+
+      border-radius: 50%;
+
+      display: grid;
+
+      place-items: center;
+
+      background: rgba(18, 183, 106, 0.15);
+
+      color: #32d583;
+
+      font-style: normal;
+    }
+
+    .score-card {
+      background: rgba(255, 255, 255, 0.07);
+
+      border: 1px solid rgba(255, 255, 255, 0.12);
+
+      border-radius: 22px;
+
+      padding: 28px;
+    }
+
+    .score-top {
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      margin-bottom: 25px;
+    }
+
+    .score-top span {
+      color: #aab3c2;
+      font-size: 12px;
+    }
+
+    .score-number {
+      font-size: 40px;
+      font-weight: 800;
+    }
+
+    .progress {
+      height: 8px;
+
+      background: rgba(255,255,255,0.1);
+
+      border-radius: 20px;
+
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+
+      width: 94%;
+      height: 100%;
+
+      background:
+        linear-gradient(
+          90deg,
+          #12b76a,
+          #32d583
+        );
+
+      border-radius: 20px;
+    }
+
+    .score-items {
+      margin-top: 25px;
+    }
+
+    .score-item {
+      display: flex;
+
+      justify-content: space-between;
+
+      padding: 11px 0;
+
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+
+      font-size: 12px;
+    }
+
+    .score-item span {
+      color: #aab3c2;
+    }
+
+    .score-item strong {
+      color: #32d583;
+    }
+
+    /* =========================
+       TEMPLATES
+    ========================== */
+
+    .template-toolbar {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      margin-bottom: 25px;
+    }
+
+    .template-tabs {
+      display: flex;
+
+      gap: 8px;
+
+      flex-wrap: wrap;
+    }
+
+    .template-tab {
+      padding: 8px 14px;
+
+      border-radius: 9px;
+
+      border: 1px solid var(--border);
+
+      background: white;
+
+      color: #667085;
+
+      font-size: 12px;
+
+      cursor: pointer;
+    }
+
+    .template-tab.active {
+      background: #eeedff;
+
+      color: var(--primary);
+
+      border-color: #d9d6ff;
+
+      font-weight: 700;
+    }
+
+    .templates-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, 1fr);
+
+      gap: 20px;
+    }
+
+    .template-card {
+      background: white;
+
+      border: 1px solid var(--border);
+
+      border-radius: 18px;
+
+      padding: 12px;
+
+      transition: 0.25s;
+    }
+
+    .template-card:hover {
+      transform: translateY(-7px);
+
+      box-shadow: var(--shadow);
+
+      border-color: #d7d4ff;
+    }
+
+    .template-preview {
+      height: 390px;
+
+      background: white;
+
+      border: 1px solid #e7e8ee;
+
+      overflow: hidden;
+
+      position: relative;
+
+      padding: 25px 23px;
+
+      cursor: pointer;
+    }
+
+    .template-preview.classic {
+      font-family: Georgia, serif;
+    }
+
+    .template-preview.modern {
+      font-family: Arial, sans-serif;
+    }
+
+    .template-preview.executive {
+      font-family: Arial, sans-serif;
+    }
+
+    .template-preview.minimal {
+      font-family: Arial, sans-serif;
+    }
+
+    .tp-name {
+      font-size: 20px;
+
+      font-weight: 800;
+
+      letter-spacing: -0.7px;
+    }
+
+    .tp-role {
+      font-size: 7px;
+
+      color: var(--primary);
+
+      font-weight: 700;
+
+      margin-top: 3px;
+    }
+
+    .tp-contact {
+      margin-top: 9px;
+
+      font-size: 5.5px;
+
+      color: #667085;
+    }
+
+    .tp-divider {
+      height: 1px;
+
+      background: #222;
+
+      margin: 13px 0;
+    }
+
+    .tp-heading {
+      font-size: 7px;
+
+      font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.8px;
+
+      margin: 10px 0 5px;
+    }
+
+    .tp-line {
+      height: 4px;
+
+      background: #e7e8ee;
+
+      border-radius: 10px;
+
+      margin: 4px 0;
+    }
+
+    .tp-line.w80 {
+      width: 80%;
+    }
+
+    .tp-line.w90 {
+      width: 90%;
+    }
+
+    .tp-line.w65 {
+      width: 65%;
+    }
+
+    .template-info {
+      padding: 14px 6px 5px;
+    }
+
+    .template-info-row {
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+    }
+
+    .template-info h3 {
+      font-size: 14px;
+    }
+
+    .template-info p {
+      color: var(--text-secondary);
+
+      font-size: 11px;
+
+      margin-top: 3px;
+    }
+
+    .ats-mini {
+      color: var(--success);
+
+      background: #eaf9f1;
+
+      padding: 4px 7px;
+
+      border-radius: 7px;
+
+      font-size: 9px;
+
+      font-weight: 800;
+    }
+
+    .template-button {
+      width: 100%;
+
+      margin-top: 12px;
+
+      padding: 9px;
+
+      border-radius: 9px;
+
+      border: 1px solid var(--border);
+
+      background: white;
+
+      font-size: 11px;
+
+      font-weight: 700;
+
+      color: #344054;
+
+      transition: 0.2s;
+    }
+
+    .template-button:hover {
+      background: #f7f7ff;
+
+      color: var(--primary);
+
+      border-color: #d6d2ff;
+    }
+
+    /* =========================
+       HOW IT WORKS
+    ========================== */
+
+    .steps {
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, 1fr);
+
+      gap: 18px;
+    }
+
+    .step {
+      position: relative;
+
+      padding: 25px;
+
+      background: white;
+
+      border: 1px solid var(--border);
+
+      border-radius: 16px;
+    }
+
+    .step-number {
+      width: 35px;
+      height: 35px;
+
+      border-radius: 10px;
+
+      display: grid;
+      place-items: center;
+
+      background: #eeedff;
+
+      color: var(--primary);
+
+      font-weight: 800;
+
+      font-size: 12px;
+
+      margin-bottom: 18px;
+    }
+
+    .step h3 {
+      font-size: 15px;
+
+      margin-bottom: 7px;
+    }
+
+    .step p {
+      color: var(--text-secondary);
+
+      font-size: 12px;
+
+      line-height: 1.7;
+    }
+
+    /* =========================
+       CTA
+    ========================== */
+
+    .cta {
+      margin-top: 20px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #17152f,
+          #242052
+        );
+
+      color: white;
+
+      border-radius: 26px;
+
+      padding: 65px 30px;
+
+      text-align: center;
+
+      position: relative;
+
+      overflow: hidden;
+    }
+
+    .cta::before,
+    .cta::after {
+      content: "";
+
+      position: absolute;
+
+      width: 220px;
+      height: 220px;
+
+      border-radius: 50%;
+
+      filter: blur(70px);
+
+      opacity: 0.3;
+    }
+
+    .cta::before {
+      background: #635bff;
+
+      left: -60px;
+      top: -100px;
+    }
+
+    .cta::after {
+      background: #06b6d4;
+
+      right: -60px;
+      bottom: -100px;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .cta h2 {
+      font-size: 38px;
+
+      letter-spacing: -1.5px;
+    }
+
+    .cta p {
+      max-width: 600px;
+
+      margin: 13px auto 25px;
+
+      color: #b7bed0;
+
+      font-size: 14px;
+    }
+
+    /* =========================
+       FOOTER
+    ========================== */
+
+    footer {
+      margin-top: 70px;
+
+      border-top: 1px solid var(--border);
+
+      background: white;
+    }
+
+    .footer-container {
+      max-width: var(--max-width);
+
+      margin: auto;
+
+      padding: 45px 24px 25px;
+
+      display: grid;
+
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+
+      gap: 50px;
+    }
+
+    .footer-brand p {
+      max-width: 320px;
+
+      margin-top: 12px;
+
+      color: var(--text-secondary);
+
+      font-size: 12px;
+
+      line-height: 1.7;
+    }
+
+    .footer-column h4 {
+      font-size: 12px;
+
+      margin-bottom: 15px;
+    }
+
+    .footer-column a {
+      display: block;
+
+      color: var(--text-secondary);
+
+      font-size: 11px;
+
+      margin: 9px 0;
+    }
+
+    .footer-bottom {
+      max-width: var(--max-width);
+
+      margin: auto;
+
+      padding: 18px 24px;
+
+      border-top: 1px solid var(--border);
+
+      color: #98a2b3;
+
+      font-size: 10px;
+
+      display: flex;
+
+      justify-content: space-between;
+    }
+
+    /* =========================
+       MODAL
+    ========================== */
+
+    .modal {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 500;
+
+      display: none;
+
+      place-items: center;
+
+      background: rgba(15, 23, 42, 0.55);
+
+      backdrop-filter: blur(8px);
+
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: grid;
+    }
+
+    .modal-content {
+      width: min(900px, 100%);
+
+      max-height: 90vh;
+
+      overflow: auto;
+
+      background: white;
+
+      border-radius: 22px;
+
+      padding: 28px;
+
+      box-shadow: var(--shadow-lg);
+
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+
+      top: 18px;
+      right: 18px;
+
+      width: 35px;
+      height: 35px;
+
+      border-radius: 50%;
+
+      border: 1px solid var(--border);
+
+      background: white;
+
+      font-size: 18px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+
+      margin-bottom: 5px;
+    }
+
+    .modal-subtitle {
+      color: var(--text-secondary);
+
+      font-size: 13px;
+
+      margin-bottom: 25px;
+    }
+
+    .modal-resume {
+      max-width: 650px;
+
+      min-height: 800px;
+
+      margin: auto;
+
+      padding: 55px;
+
+      border: 1px solid var(--border);
+
+      box-shadow: var(--shadow-sm);
+
+      background: white;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 1050px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-preview {
+        max-width: 500px;
+        width: 100%;
+        margin: auto;
+      }
+
+      .templates-grid {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .why-grid {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .steps {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .ats-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-actions .btn-outline {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 65px;
+      }
+
+      .hero h1 {
+        letter-spacing: -2px;
+      }
+
+      .hero-preview {
+        transform: scale(0.85);
+        transform-origin: top center;
+
+        margin-bottom: -60px;
+      }
+
+      .stats-container {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .stat:nth-child(2) {
+        border-right: none;
+      }
+
+      .stat:nth-child(-n+2) {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section {
+        padding: 75px 20px;
+      }
+
+      .section-title {
+        font-size: 31px;
+      }
+
+      .why-grid,
+      .templates-grid,
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .ats-content {
+        padding: 35px 25px;
+      }
+
+      .ats-checks {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer-brand {
+        grid-column: 1 / -1;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 7px;
+      }
+    }
+
+    @media (max-width: 450px) {
+      .brand-text {
+        display: none;
+      }
+
+      .hero-preview {
+        transform: scale(0.7);
+        margin-bottom: -130px;
+      }
+
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .stat:last-child {
+        border-bottom: none;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="header">
+
+    <nav class="nav">
+
+      <a href="#" class="brand">
+
+        <div class="brand-logo">
+          AK
+        </div>
+
+        <div class="brand-text">
+          <strong>AK ResumeBuilder</strong>
+          <span>Career-ready resumes</span>
+        </div>
+
+      </a>
+
+      <div class="nav-links">
+
+        <a href="#why">Why Resume</a>
+
+        <a href="#ats">ATS Optimization</a>
+
+        <a href="#templates">Templates</a>
+
+        <a href="#how">How It Works</a>
+
+      </div>
+
+      <div class="nav-actions">
+
+        <button class="btn btn-outline">
+          Sign in
+        </button>
+
+        <button
+          class="btn btn-primary"
+          onclick="scrollToBuilder()"
+        >
+          Build Resume
+        </button>
+
+      </div>
+
+    </nav>
+
+  </header>
+
+
+  <!-- =========================
+       HERO
+  ========================== -->
+
+  <main>
+
+    <section class="hero">
+
+      <div class="hero-container">
+
+        <div>
+
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            ATS-Optimized Resume Builder
+          </div>
+
+          <h1>
+            Build a resume that
+            <span class="gradient-text">
+              gets noticed.
+            </span>
+          </h1>
+
+          <p class="hero-description">
+
+            Create a professionally structured, ATS-friendly resume
+            designed around your skills, experience and target job.
+            AK ResumeBuilder helps you turn your career story into a
+            resume recruiters can quickly understand — and applicant
+            tracking systems can easily parse.
+
+          </p>
+
+          <div class="hero-actions">
+
+            <button
+              class="btn btn-primary"
+              onclick="scrollToBuilder()"
+            >
+              Create My Resume →
+            </button>
+
+            <button
+              class="btn btn-outline"
+              onclick="document
+                .getElementById('templates')
+                .scrollIntoView({behavior:'smooth'})"
+            >
+              Explore Templates
+            </button>
+
+          </div>
+
+          <div class="hero-trust">
+
+            <span class="trust-check">✓</span>
+
+            <span>
+              ATS-friendly structure
+            </span>
+
+            <span class="trust-check">✓</span>
+
+            <span>
+              Recruiter-focused formatting
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- RESUME VISUAL -->
+
+        <div class="hero-preview">
+
+          <div class="resume-card resume-card-back">
+
+            <div class="resume-name">
+              Ankaj Kumar
+            </div>
+
+            <div class="resume-role">
+              SOFTWARE ENGINEER
+            </div>
+
+            <div class="resume-line"></div>
+
+            <div class="resume-section">
+              <div class="resume-section-title">
+                EXPERIENCE
+              </div>
+
+              <div class="resume-text long"></div>
+              <div class="resume-text medium"></div>
+              <div class="resume-text short"></div>
+              <div class="resume-text medium"></div>
+            </div>
+
+          </div>
+
+
+          <div class="resume-card">
+
+            <div class="resume-name">
+              Ankaj Kumar
+            </div>
+
+            <div class="resume-role">
+              FULL STACK SOFTWARE ENGINEER
+            </div>
+
+            <div class="resume-contact">
+              Bengaluru, India · +91 XXXXX XXXXX · ankaj@email.com
+            </div>
+
+            <div class="resume-line"></div>
+
+            <div class="resume-section">
+
+              <div class="resume-section-title">
+                Professional Summary
+              </div>
+
+              <div class="resume-text long"></div>
+              <div class="resume-text long"></div>
+              <div class="resume-text medium"></div>
+
+            </div>
+
+            <div class="resume-section">
+
+              <div class="resume-section-title">
+                Experience
+              </div>
+
+              <div class="resume-text long"></div>
+              <div class="resume-text medium"></div>
+              <div class="resume-text long"></div>
+              <div class="resume-text short"></div>
+
+            </div>
+
+            <div class="resume-section">
+
+              <div class="resume-section-title">
+                Skills
+              </div>
+
+              <div class="resume-text long"></div>
+              <div class="resume-text medium"></div>
+
+            </div>
+
+            <div class="resume-section">
+
+              <div class="resume-section-title">
+                Education
+              </div>
+
+              <div class="resume-text medium"></div>
+              <div class="resume-text short"></div>
+
+            </div>
+
+          </div>
+
+
+          <div class="ats-badge">
+
+            <div class="ats-circle">
+              <span>94%</span>
+            </div>
+
+            <div class="ats-text">
+
+              <strong>ATS Ready</strong>
+
+              <span>
+                Strong resume structure
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         STATS
+    ========================== -->
+
+    <div class="stats">
+
+      <div class="stats-container">
+
+        <div class="stat">
+          <strong>4</strong>
+          <span>ATS Resume Templates</span>
+        </div>
+
+        <div class="stat">
+          <strong>94%</strong>
+          <span>Sample ATS Score</span>
+        </div>
+
+        <div class="stat">
+          <strong>100%</strong>
+          <span>Recruiter-focused</span>
+        </div>
+
+        <div class="stat">
+          <strong>1-click</strong>
+          <span>Resume Generation</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         WHY SECTION
+    ========================== -->
+
+    <section class="section" id="why">
+
+      <div class="section-header">
+
+        <div class="section-label">
+          Why Your Resume Matters
+        </div>
+
+        <h2 class="section-title">
+          Your resume is more than a document.
+          It's your first career impression.
+        </h2>
+
+        <p class="section-description">
+
+          Recruiters often review a large number of applications.
+          A strong resume makes your value clear quickly, while a
+          poorly structured resume can hide even excellent experience.
+          AK ResumeBuilder focuses on clarity, relevance and measurable
+          impact.
+
+        </p>
+
+      </div>
+
+
+      <div class="why-grid">
+
+        <div class="why-card">
+
+          <div class="why-icon">
+            ◈
+          </div>
+
+          <h3>
+            Get past the first filter
+          </h3>
+
+          <p>
+            Use a clean, structured resume format with recognizable
+            sections and relevant keywords so your information is easier
+            for applicant tracking systems to process.
+          </p>
+
+        </div>
+
+
+        <div class="why-card">
+
+          <div class="why-icon">
+            ✦
+          </div>
+
+          <h3>
+            Show your real impact
+          </h3>
+
+          <p>
+            Transform responsibilities into achievement-focused
+            statements that communicate what you delivered, how you
+            contributed and what changed because of your work.
+          </p>
+
+        </div>
+
+
+        <div class="why-card">
+
+          <div class="why-icon">
+            ◎
+          </div>
+
+          <h3>
+            Look professional instantly
+          </h3>
+
+          <p>
+            Choose a polished layout designed to balance recruiter
+            readability with ATS compatibility instead of unnecessary
+            visual decoration.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         ATS SECTION
+    ========================== -->
+
+    <section class="section" id="ats">
+
+      <div class="ats-section">
+
+        <div class="ats-content">
+
+          <div>
+
+            <div class="section-label">
+              ATS Intelligence
+            </div>
+
+            <h2>
+              Designed for software.
+              Refined for humans.
+            </h2>
+
+            <p>
+
+              Your resume should work for both sides of the hiring
+              process. AK ResumeBuilder uses standard section names,
+              readable typography, clean hierarchy and keyword-focused
+              content so your experience remains easy to understand.
+
+            </p>
+
+            <div class="ats-checks">
+
+              <div class="ats-check">
+                <i>✓</i>
+                Standard resume sections
+              </div>
+
+              <div class="ats-check">
+                <i>✓</i>
+                Keyword optimization
+              </div>
+
+              <div class="ats-check">
+                <i>✓</i>
+                Clean single-column layouts
+              </div>
+
+              <div class="ats-check">
+                <i>✓</i>
+                Recruiter-readable formatting
+              </div>
+
+              <div class="ats-check">
+                <i>✓</i>
+                Achievement-focused bullets
+              </div>
+
+              <div class="ats-check">
+                <i>✓</i>
+                Professional typography
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="score-card">
+
+            <div class="score-top">
+
+              <div>
+                <span>Resume Readiness</span>
+
+                <div class="score-number">
+                  94
+                </div>
+              </div>
+
+              <div>
+                <span>Excellent</span>
+              </div>
+
+            </div>
+
+            <div class="progress">
+              <span></span>
+            </div>
+
+            <div class="score-items">
+
+              <div class="score-item">
+                <span>Structure</span>
+                <strong>Excellent</strong>
+              </div>
+
+              <div class="score-item">
+                <span>Keywords</span>
+                <strong>Strong</strong>
+              </div>
+
+              <div class="score-item">
+                <span>Readability</span>
+                <strong>Excellent</strong>
+              </div>
+
+              <div class="score-item">
+                <span>Experience</span>
+                <strong>Strong</strong>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         TEMPLATES
+    ========================== -->
+
+    <section class="section" id="templates">
+
+      <div class="section-header">
+
+        <div class="section-label">
+          Resume Templates
+        </div>
+
+        <h2 class="section-title">
+          Four ways to present your career story.
+        </h2>
+
+        <p class="section-description">
+
+          Every AK ResumeBuilder template follows an ATS-first philosophy
+          while giving you enough visual personality to create a strong
+          professional impression.
+
+        </p>
+
+      </div>
+
+
+      <div class="template-toolbar">
+
+        <div class="template-tabs">
+
+          <button class="template-tab active">
+            All Templates
+          </button>
+
+          <button class="template-tab">
+            Software Engineering
+          </button>
+
+          <button class="template-tab">
+            Business
+          </button>
+
+          <button class="template-tab">
+            Executive
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="templates-grid">
+
+
+        <!-- TEMPLATE 1 -->
+
+        <div class="template-card">
+
+          <div
+            class="template-preview classic"
+            onclick="openTemplate('AK Classic')"
+          >
+
+            <div class="tp-name">
+              Ankaj Kumar
+            </div>
+
+            <div class="tp-role">
+              FULL STACK SOFTWARE ENGINEER
+            </div>
+
+            <div class="tp-contact">
+              Bengaluru, India · Email · LinkedIn · Phone
+            </div>
+
+            <div class="tp-divider"></div>
+
+            <div class="tp-heading">
+              Professional Summary
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w90"></div>
+            <div class="tp-line w65"></div>
+
+            <div class="tp-heading">
+              Work Experience
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+            <div class="tp-line w90"></div>
+            <div class="tp-line w65"></div>
+
+            <div class="tp-heading">
+              Skills
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Education
+            </div>
+
+            <div class="tp-line w80"></div>
+
+          </div>
+
+          <div class="template-info">
+
+            <div class="template-info-row">
+
+              <div>
+                <h3>AK Classic</h3>
+                <p>Traditional · Professional</p>
+              </div>
+
+              <span class="ats-mini">
+                ATS ✓
+              </span>
+
+            </div>
+
+            <button
+              class="template-button"
+              onclick="openTemplate('AK Classic')"
+            >
+              Use Template
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- TEMPLATE 2 -->
+
+        <div class="template-card">
+
+          <div
+            class="template-preview modern"
+            onclick="openTemplate('AK Modern')"
+          >
+
+            <div
+              class="tp-name"
+              style="color:#635bff;"
+            >
+              Ankaj Kumar
+            </div>
+
+            <div class="tp-role">
+              SOFTWARE ENGINEER
+            </div>
+
+            <div class="tp-contact">
+              Bengaluru, India · Email · LinkedIn · Phone
+            </div>
+
+            <div
+              class="tp-divider"
+              style="background:#635bff;"
+            ></div>
+
+            <div class="tp-heading">
+              Summary
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Experience
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w90"></div>
+            <div class="tp-line w65"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Technical Skills
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Projects
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w65"></div>
+
+          </div>
+
+          <div class="template-info">
+
+            <div class="template-info-row">
+
+              <div>
+                <h3>AK Modern</h3>
+                <p>Clean · Tech · Contemporary</p>
+              </div>
+
+              <span class="ats-mini">
+                ATS ✓
+              </span>
+
+            </div>
+
+            <button
+              class="template-button"
+              onclick="openTemplate('AK Modern')"
+            >
+              Use Template
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- TEMPLATE 3 -->
+
+        <div class="template-card">
+
+          <div
+            class="template-preview executive"
+            onclick="openTemplate('AK Executive')"
+          >
+
+            <div
+              class="tp-name"
+              style="font-size:22px;"
+            >
+              Ankaj Kumar
+            </div>
+
+            <div class="tp-role">
+              FULL STACK SOFTWARE ENGINEER
+            </div>
+
+            <div class="tp-contact">
+              Bengaluru · India · +91 · Email · LinkedIn
+            </div>
+
+            <div class="tp-divider"></div>
+
+            <div class="tp-heading">
+              Executive Profile
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Professional Experience
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+            <div class="tp-line w65"></div>
+
+            <div class="tp-heading">
+              Core Competencies
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Education
+            </div>
+
+            <div class="tp-line w65"></div>
+
+          </div>
+
+          <div class="template-info">
+
+            <div class="template-info-row">
+
+              <div>
+                <h3>AK Executive</h3>
+                <p>Premium · Leadership</p>
+              </div>
+
+              <span class="ats-mini">
+                ATS ✓
+              </span>
+
+            </div>
+
+            <button
+              class="template-button"
+              onclick="openTemplate('AK Executive')"
+            >
+              Use Template
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- TEMPLATE 4 -->
+
+        <div class="template-card">
+
+          <div
+            class="template-preview minimal"
+            onclick="openTemplate('AK Minimal')"
+          >
+
+            <div
+              class="tp-name"
+              style="font-weight:600;"
+            >
+              Ankaj Kumar
+            </div>
+
+            <div class="tp-role">
+              SOFTWARE ENGINEER
+            </div>
+
+            <div class="tp-contact">
+              Bengaluru, India · Email · LinkedIn · Phone
+            </div>
+
+            <div
+              class="tp-divider"
+              style="background:#d0d5dd;"
+            ></div>
+
+            <div class="tp-heading">
+              Summary
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Experience
+            </div>
+
+            <div class="tp-line w90"></div>
+            <div class="tp-line w65"></div>
+            <div class="tp-line w90"></div>
+            <div class="tp-line w80"></div>
+
+            <div class="tp-heading">
+              Skills
+            </div>
+
+            <div class="tp-line w90"></div>
+
+            <div class="tp-heading">
+              Education
+            </div>
+
+            <div class="tp-line w65"></div>
+
+          </div>
+
+          <div class="template-info">
+
+            <div class="template-info-row">
+
+              <div>
+                <h3>AK Minimal</h3>
+                <p>Minimal · ATS-first</p>
+              </div>
+
+              <span class="ats-mini">
+                ATS ✓
+              </span>
+
+            </div>
+
+            <button
+              class="template-button"
+              onclick="openTemplate('AK Minimal')"
+            >
+              Use Template
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         HOW IT WORKS
+    ========================== -->
+
+    <section class="section" id="how">
+
+      <div class="section-header">
+
+        <div class="section-label">
+          How It Works
+        </div>
+
+        <h2 class="section-title">
+          From blank page to job-ready resume.
+        </h2>
+
+      </div>
+
+
+      <div class="steps">
+
+        <div class="step">
+
+          <div class="step-number">
+            01
+          </div>
+
+          <h3>
+            Add your profile
+          </h3>
+
+          <p>
+            Enter your experience, education, skills, projects and
+            achievements once.
+          </p>
+
+        </div>
+
+
+        <div class="step">
+
+          <div class="step-number">
+            02
+          </div>
+
+          <h3>
+            Choose a template
+          </h3>
+
+          <p>
+            Select from four professional ATS-friendly designs built
+            for different career profiles.
+          </p>
+
+        </div>
+
+
+        <div class="step">
+
+          <div class="step-number">
+            03
+          </div>
+
+          <h3>
+            Optimize your content
+          </h3>
+
+          <p>
+            Improve keywords, achievements, structure and readability
+            against your target role.
+          </p>
+
+        </div>
+
+
+        <div class="step">
+
+          <div class="step-number">
+            04
+          </div>
+
+          <h3>
+            Generate & apply
+          </h3>
+
+          <p>
+            Create your final resume and use it confidently for your
+            next job application.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- CTA -->
+
+      <div class="cta">
+
+        <div class="cta-content">
+
+          <h2>
+            Ready to build your next opportunity?
+          </h2>
+
+          <p>
+            Start with your experience. We'll help turn it into a
+            professional, ATS-friendly resume designed for the job
+            you want next.
+          </p>
+
+          <button
+            class="btn btn-primary"
+            onclick="scrollToBuilder()"
+          >
+            Build My Resume →
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer>
+
+    <div class="footer-container">
+
+      <div class="footer-brand">
+
+        <a href="#" class="brand">
+
+          <div class="brand-logo">
+            AK
+          </div>
+
+          <div class="brand-text">
+            <strong>AK ResumeBuilder</strong>
+            <span>Career-ready resumes</span>
+          </div>
+
+        </a>
+
+        <p>
+
+          A modern resume-building experience focused on clarity,
+          ATS compatibility and helping professionals present their
+          career story with confidence.
+
+        </p>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <h4>Product</h4>
+
+        <a href="#templates">
+          Templates
+        </a>
+
+        <a href="#ats">
+          ATS Optimization
+        </a>
+
+        <a href="#how">
+          How It Works
+        </a>
+
+        <a href="#">
+          Resume Builder
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <h4>Resources</h4>
+
+        <a href="#">
+          Resume Guide
+        </a>
+
+        <a href="#">
+          ATS Guide
+        </a>
+
+        <a href="#">
+          Career Tips
+        </a>
+
+        <a href="#">
+          Interview Prep
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <h4>Company</h4>
+
+        <a href="#">
+          About
+        </a>
+
+        <a href="#">
+          Contact
+        </a>
+
+        <a href="#">
+          Privacy
+        </a>
+
+        <a href="#">
+          Terms
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+      <span>
+        © 2026 AK ResumeBuilder. All rights reserved.
+      </span>
+
+      <span>
+        Built for better career opportunities.
+      </span>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =========================
+       TEMPLATE MODAL
+  ========================== -->
+
+  <div
+    class="modal"
+    id="templateModal"
+    onclick="closeModal(event)"
+  >
+
+    <div class="modal-content">
+
+      <button
+        class="modal-close"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
+      <h2
+        class="modal-title"
+        id="modalTitle"
+      >
+        AK Classic
+      </h2>
+
+      <p class="modal-subtitle">
+
+        ATS-friendly resume template preview
+
+      </p>
+
+
+      <div class="modal-resume">
+
+        <div
+          class="tp-name"
+          style="font-size:34px;"
+        >
+          Ankaj Kumar
+        </div>
+
+        <div
+          class="tp-role"
+          style="font-size:12px;"
+        >
+          FULL STACK SOFTWARE ENGINEER
+        </div>
+
+        <div
+          class="tp-contact"
+          style="font-size:10px;"
+        >
+          Bengaluru, India · +91 XXXXX XXXXX ·
+          ankaj@email.com · LinkedIn
+        </div>
+
+        <div class="tp-divider"></div>
+
+        <div
+          class="tp-heading"
+          style="font-size:11px;"
+        >
+          Professional Summary
+        </div>
+
+        <p
+          style="
+            font-size:10px;
+            color:#667085;
+            line-height:1.7;
+          "
+        >
+          Full Stack Software Engineer with experience building
+          scalable web applications across frontend and backend
+          systems. Strong focus on modern application architecture,
+          API integration, security and high-performance user
+          experiences.
+        </p>
+
+
+        <div
+          class="tp-heading"
+          style="font-size:11px;margin-top:25px;"
+        >
+          Professional Experience
+        </div>
+
+        <p
+          style="
+            font-size:11px;
+            font-weight:700;
+            margin-top:10px;
+          "
+        >
+          Full Stack Software Engineer
+        </p>
+
+        <p
+          style="
+            font-size:9px;
+            color:#667085;
+          "
+        >
+          Technology Company · Bengaluru · 2022 — Present
+        </p>
+
+        <ul
+          style="
+            font-size:9px;
+            margin-top:8px;
+            padding-left:18px;
+            line-height:1.8;
+          "
+        >
+          <li>
+            Built scalable frontend applications using Angular
+            and TypeScript.
+          </li>
+
+          <li>
+            Developed backend services and REST APIs using
+            Node.js and NestJS.
+          </li>
+
+          <li>
+            Implemented secure authentication and role-based
+            access control.
+          </li>
+
+          <li>
+            Improved application performance and developer
+            productivity through reusable architecture.
+          </li>
+        </ul>
+
+
+        <div
+          class="tp-heading"
+          style="font-size:11px;margin-top:25px;"
+        >
+          Technical Skills
+        </div>
+
+        <p
+          style="
+            font-size:9px;
+            line-height:1.8;
+            color:#344054;
+          "
+        >
+          Angular · TypeScript · JavaScript · Node.js · NestJS ·
+          REST APIs · Keycloak · RBAC · HTML · CSS · Git
+        </p>
+
+
+        <div
+          class="tp-heading"
+          style="font-size:11px;margin-top:25px;"
+        >
+          Education
+        </div>
+
+        <p
+          style="
+            font-size:9px;
+            color:#344054;
+          "
+        >
+          Bachelor's Degree · University Name
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
+
+  <script>
+
+    function scrollToBuilder() {
+
+      document
+        .getElementById("templates")
+        .scrollIntoView({
+          behavior: "smooth"
+        });
+
+    }
+
+
+    function openTemplate(name) {
+
+      document
+        .getElementById("modalTitle")
+        .textContent = name;
+
+      document
+        .getElementById("templateModal")
+        .classList
+        .add("show");
+
+      document.body.style.overflow = "hidden";
+
+    }
+
+
+    function closeModal(event) {
+
+      if (
+        event &&
+        event.target !== document.getElementById("templateModal")
+      ) {
+        return;
+      }
+
+      document
+        .getElementById("templateModal")
+        .classList
+        .remove("show");
+
+      document.body.style.overflow = "";
+
+    }
+
+
+    document
+      .querySelectorAll(".template-tab")
+      .forEach(tab => {
+
+        tab.addEventListener("click", () => {
+
+          document
+            .querySelectorAll(".template-tab")
+            .forEach(t =>
+              t.classList.remove("active")
+            );
+
+          tab.classList.add("active");
+
+        });
+
+      });
+
+
+    document.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (event.key === "Escape") {
+          document
+            .getElementById("templateModal")
+            .classList
+            .remove("show");
+
+          document.body.style.overflow = "";
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>

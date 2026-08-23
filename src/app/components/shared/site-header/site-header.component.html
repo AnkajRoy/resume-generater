@@ -1,0 +1,17 @@
+<header class="header">
+  <nav class="nav">
+    <a class="brand" (click)="goHome()">
+      <div class="brand-logo">AK</div>
+      <div class="brand-text">
+        <strong>AK ResumeBuilder</strong>
+        <span>Career-ready resumes</span>
+      </div>
+    </a>
+
+    @if (showLogout) {
+      <button type="button" class="logout-link" (click)="logout()">Logout</button>
+    } @else {
+      <a class="back-link" (click)="goHome()">← Back to home</a>
+    }
+  </nav>
+</header>

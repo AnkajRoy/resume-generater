@@ -1,10 +1,10 @@
-.login-page {
-  min-height: calc(100vh - 76px - 60px);
-  padding: 2rem 1rem;
+.pending-page {
+  min-height: 100vh;
+  padding: 1rem;
   background: linear-gradient(135deg, #f5f7fb 0%, #eef1f8 100%);
 }
 
-.login-card {
+.pending-card {
   width: 100%;
   max-width: 400px;
   border: none;

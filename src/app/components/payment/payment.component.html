@@ -1,0 +1,57 @@
+<div class="payment-page d-flex align-items-center justify-content-center">
+  <div class="card payment-card shadow-sm">
+    <div class="card-body p-4 text-center">
+      <h1 class="h4 fw-bold mb-1">Unlock Full Access</h1>
+      <p class="text-muted small mb-3">One-time payment to generate your resume</p>
+
+      <div class="price-badge mb-3">₹{{ price }}</div>
+
+      @if (!claimed()) {
+        <div class="qr-wrapper mb-3" [class.blurred]="!revealed()">
+          <img
+            src="assets/payment-qr.png"
+            alt="Scan to pay via UPI"
+            class="qr-image"
+            onerror="this.onerror=null; this.src=''; this.classList.add('qr-missing');">
+          @if (!revealed()) {
+            <div class="qr-overlay">
+              <span>🔒 Tap "Pay ₹{{ price }}" to reveal the QR code</span>
+            </div>
+          }
+        </div>
+
+        @if (!revealed()) {
+          <button type="button" class="btn btn-primary btn-lg w-100 mb-3" (click)="reveal()">
+            Pay ₹{{ price }}
+          </button>
+        } @else {
+          <p class="small text-muted mb-3">Scan the QR above with any UPI app (Google Pay, PhonePe, Paytm) to pay ₹{{ price }}.</p>
+
+          <div class="timer mb-3" [class.text-danger]="secondsLeft() === 0">
+            @if (secondsLeft() > 0) {
+              ⏳ Time remaining: {{ timeDisplay }}
+            } @else {
+              Time's up — you can still pay and click below, or refresh the page.
+            }
+          </div>
+
+          @if (error) {
+            <div class="alert alert-danger py-2 small">{{ error }}</div>
+          }
+
+          <button type="button" class="btn btn-success btn-lg w-100" [disabled]="claiming()" (click)="markPaid()">
+            {{ claiming() ? 'Recording...' : "I've Paid" }}
+          </button>
+        }
+      } @else {
+        <div class="alert alert-success">
+          ✅ Payment claim recorded! Access will be enabled once verified — usually within a short while.
+        </div>
+      }
+
+      <div class="mt-4">
+        <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </div>
+</div>

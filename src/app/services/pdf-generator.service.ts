@@ -5,7 +5,27 @@ import { ResumeData } from '../models/resume.model';
 @Injectable({ providedIn: 'root' })
 export class PdfGeneratorService {
 
-  generate(data: ResumeData): void {
+  /** Stamps a repeated, low-opacity diagonal watermark across every page — used only for public sample downloads. */
+  private stampWatermark(doc: jsPDF, text: string, pageW: number, pageH: number): void {
+    const totalPages = doc.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.saveGraphicsState();
+      doc.setGState(doc.GState({ opacity: 0.09 }));
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(26);
+      doc.setTextColor(120, 120, 120);
+      const stepX = 190, stepY = 130;
+      for (let yy = -40; yy < pageH + 80; yy += stepY) {
+        for (let xx = -60; xx < pageW + 120; xx += stepX) {
+          doc.text(text, xx, yy, { angle: 35 });
+        }
+      }
+      doc.restoreGraphicsState();
+    }
+  }
+
+  generate(data: ResumeData, watermark?: string): void {
     const doc = new jsPDF({ unit: 'pt', format: 'letter' });
     const W = 612, L = 30, R = W - 30, pw = R - L;
     const PAGE_H = 792;
@@ -193,11 +213,15 @@ export class PdfGeneratorService {
 
     footerBar();
 
+    if (watermark) {
+      this.stampWatermark(doc, watermark, W, PAGE_H);
+    }
+
     doc.save(data.personalInfo.name.replace(/\s+/g, '_') + '_Resume.pdf');
   }
 
   // ── MODERN TWO-COLUMN TEMPLATE (separate from generate() above) ──────────
-  generateModern(data: ResumeData): void {
+  generateModern(data: ResumeData, watermark?: string): void {
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const W = 595.28, PAGE_H = 841.89, M = 34, R = W - M, cw = R - M;
     const TOP = 34, SAFE_BOT = PAGE_H - 36;
@@ -489,6 +513,10 @@ export class PdfGeneratorService {
     plainWrap(colR, rightX, rightW, eduLine, 9, 'bold', 11, C.bk);
     plainWrap(colR, rightX, rightW, edu.institution, 8.3, 'bold', 10.5, C.bl);
     metaRow(colR, rightX, edu.year, edu.location, C.gy);
+
+    if (watermark) {
+      this.stampWatermark(doc, watermark, W, PAGE_H);
+    }
 
     doc.save(data.personalInfo.name.replace(/\s+/g, '_') + '_Modern_Resume.pdf');
   }

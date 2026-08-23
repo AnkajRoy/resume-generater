@@ -1,41 +1,76 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { UsageService } from '../../services/usage.service';
+import { SiteHeaderComponent } from '../shared/site-header/site-header.component';
+import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SiteHeaderComponent, SiteFooterComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
   form: FormGroup;
+  mode = signal<'signin' | 'signup'>('signin');
+  loading = signal(false);
   error = '';
+  info = '';
+  totalGenerated = signal<number | null>(null);
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private usage: UsageService,
+    private router: Router
+  ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+    this.usage.getTotalCount().then(count => this.totalGenerated.set(count));
   }
 
-  submit() {
+  toggleMode() {
+    this.mode.set(this.mode() === 'signin' ? 'signup' : 'signin');
+    this.error = '';
+    this.info = '';
+  }
+
+  async submit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.error = '';
       return;
     }
 
+    this.loading.set(true);
+    this.error = '';
+    this.info = '';
     const { email, password } = this.form.value;
-    const ok = this.auth.login(email, password);
-    if (ok) {
-      this.error = '';
-      this.router.navigate(['/']);
+
+    if (this.mode() === 'signin') {
+      const { error } = await this.auth.signIn(email, password);
+      this.loading.set(false);
+      if (error) {
+        this.error = error;
+        return;
+      }
+      this.router.navigate([this.auth.isApproved() ? '/app' : '/pending-approval']);
     } else {
-      this.error = 'Invalid email or password.';
+      const { error } = await this.auth.signUp(email, password);
+      this.loading.set(false);
+      if (error) {
+        this.error = error;
+        return;
+      }
+      this.info = 'Account created! Your access is pending approval — you\'ll be able to sign in once approved.';
+      this.mode.set('signin');
+      this.form.reset();
     }
   }
 }
