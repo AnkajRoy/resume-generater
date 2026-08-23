@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const model = Deno.env.get('GROQ_MODEL') ?? 'llama-3.3-70b-versatile';
+    const model = Deno.env.get('GROQ_MODEL') ?? 'openai/gpt-oss-120b';
 
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
