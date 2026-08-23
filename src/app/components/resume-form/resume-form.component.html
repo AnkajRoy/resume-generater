@@ -7,6 +7,54 @@
     <p class="text-muted">Fill in your details and generate a professional PDF resume</p>
   </div>
 
+  <!-- Import from existing resume -->
+  <div class="card mb-4">
+    <div class="card-header bg-secondary text-white fw-bold">Import From an Existing Resume (optional)</div>
+    <div class="card-body">
+
+      @if (importState === 'idle') {
+        <p class="text-muted small mb-2">
+          Upload a PDF or .docx resume (max 2MB) and we'll try to auto-fill the form below using AI.
+          You'll get a chance to review everything before it's applied.
+        </p>
+        <input type="file" class="form-control" accept=".pdf,.docx" (change)="onResumeFileSelected($event)">
+      }
+
+      @if (importState === 'extracting' || importState === 'parsing') {
+        <div class="d-flex align-items-center gap-2 text-muted">
+          <span class="spinner-border spinner-border-sm"></span>
+          <span>{{ importState === 'extracting' ? 'Reading your file...' : 'Analyzing your resume with AI...' }}</span>
+        </div>
+      }
+
+      @if (importState === 'error') {
+        <div class="alert alert-danger py-2 small mb-2">{{ importError }}</div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelImport()">Try again</button>
+      }
+
+      @if (importState === 'review' && importedPreview) {
+        <p class="fw-bold mb-2">Here's what we found — review before applying:</p>
+        <div class="border rounded p-3 bg-light small mb-3">
+          <p class="mb-1"><strong>Name:</strong> {{ importedPreview.personalInfo.name || '—' }}</p>
+          <p class="mb-1"><strong>Title:</strong> {{ importedPreview.personalInfo.title || '—' }}</p>
+          <p class="mb-1"><strong>Email:</strong> {{ importedPreview.personalInfo.email || '—' }}</p>
+          <p class="mb-1"><strong>Phone:</strong> {{ importedPreview.personalInfo.phone || '—' }}</p>
+          <p class="mb-2"><strong>Summary:</strong> {{ importedPreview.summary || '—' }}</p>
+          <p class="mb-1"><strong>Experience entries found:</strong> {{ importedPreview.experiences.length }}</p>
+          <p class="mb-1"><strong>Projects found:</strong> {{ importedPreview.projects.length }}</p>
+          <p class="mb-1"><strong>Skill categories found:</strong> {{ importedPreview.skills.length }}</p>
+          <p class="mb-0"><strong>Achievements found:</strong> {{ importedPreview.achievements.length }}</p>
+        </div>
+        <p class="text-muted small mb-2">This will replace everything currently in the form below. You can edit any field after applying.</p>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary btn-sm" (click)="confirmImport()">Apply to Form</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelImport()">Cancel</button>
+        </div>
+      }
+
+    </div>
+  </div>
+
   <!-- Profile toggle -->
   <div class="d-flex justify-content-center gap-2 mb-4">
     <button type="button" class="btn"

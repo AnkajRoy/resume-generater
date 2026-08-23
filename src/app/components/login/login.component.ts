@@ -7,6 +7,8 @@ import { UsageService } from '../../services/usage.service';
 import { SiteHeaderComponent } from '../shared/site-header/site-header.component';
 import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
 
+type Mode = 'signin' | 'signup' | 'forgot';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -16,7 +18,7 @@ import { SiteFooterComponent } from '../shared/site-footer/site-footer.component
 })
 export class LoginComponent {
   form: FormGroup;
-  mode = signal<'signin' | 'signup'>('signin');
+  mode = signal<Mode>('signin');
   loading = signal(false);
   error = '';
   info = '';
@@ -42,7 +44,24 @@ export class LoginComponent {
     this.info = '';
   }
 
+  showForgotPassword() {
+    this.mode.set('forgot');
+    this.error = '';
+    this.info = '';
+  }
+
+  backToSignIn() {
+    this.mode.set('signin');
+    this.error = '';
+    this.info = '';
+  }
+
   async submit() {
+    if (this.mode() === 'forgot') {
+      await this.submitForgotPassword();
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -72,5 +91,26 @@ export class LoginComponent {
       this.mode.set('signin');
       this.form.reset();
     }
+  }
+
+  private async submitForgotPassword() {
+    const emailControl = this.form.get('email');
+    if (emailControl?.invalid) {
+      emailControl.markAsTouched();
+      return;
+    }
+
+    this.loading.set(true);
+    this.error = '';
+    this.info = '';
+
+    const { error } = await this.auth.requestPasswordReset(emailControl!.value);
+    this.loading.set(false);
+
+    if (error) {
+      this.error = error;
+      return;
+    }
+    this.info = 'Check your email for a password reset link.';
   }
 }

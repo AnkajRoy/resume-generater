@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } fr
 import { PdfGeneratorService } from '../../services/pdf-generator.service';
 import { UsageService } from '../../services/usage.service';
 import { AuthService } from '../../services/auth.service';
+import { ResumeImportService } from '../../services/resume-import.service';
 import { ResumeData } from '../../models/resume.model';
 import { SiteHeaderComponent } from '../shared/site-header/site-header.component';
 import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
@@ -46,13 +47,19 @@ export class ResumeFormComponent {
   templateStyle: 'classic' | 'modern' = 'classic';
   keyAchievements: { title: string; description: string }[] = [];
 
+  // ===== Resume import (upload existing resume) =====
+  importState: 'idle' | 'extracting' | 'parsing' | 'review' | 'error' = 'idle';
+  importError = '';
+  importedPreview: ResumeData | null = null;
+
   private readonly isOwner: boolean;
 
   constructor(
     private fb: FormBuilder,
     private pdfService: PdfGeneratorService,
     private usageService: UsageService,
-    private auth: AuthService
+    private auth: AuthService,
+    private importService: ResumeImportService
   ) {
     this.form = this.buildForm();
 
@@ -222,6 +229,112 @@ export class ResumeFormComponent {
     if (profile === this.activeProfile) return;
     this.applyProfile(profile);
     this.message = '';
+  }
+
+  // ===== Resume import (upload existing resume) =====
+  async onResumeFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = ''; // allow re-selecting the same file later
+    if (!file) return;
+
+    const validationError = this.importService.validateFile(file);
+    if (validationError) {
+      this.importState = 'error';
+      this.importError = validationError;
+      return;
+    }
+
+    this.importState = 'extracting';
+    this.importError = '';
+
+    try {
+      const text = await this.importService.extractText(file);
+      this.importState = 'parsing';
+      const parsed = await this.importService.parseWithAI(text);
+      this.importedPreview = parsed;
+      this.importState = 'review';
+    } catch (err) {
+      this.importState = 'error';
+      this.importError = err instanceof Error ? err.message : 'Something went wrong reading that file.';
+    }
+  }
+
+  confirmImport() {
+    if (!this.importedPreview) return;
+    this.applyImportedData(this.importedPreview);
+    this.importState = 'idle';
+    this.importedPreview = null;
+    this.message = 'Imported! Review the form below and edit anything before downloading.';
+    this.messageType = 'success';
+  }
+
+  cancelImport() {
+    this.importState = 'idle';
+    this.importedPreview = null;
+    this.importError = '';
+  }
+
+  private applyImportedData(data: ResumeData) {
+    this.clearArrays();
+
+    this.form.patchValue({
+      personalInfo: {
+        name: data.personalInfo?.name ?? '',
+        title: data.personalInfo?.title ?? '',
+        phone: data.personalInfo?.phone ?? '',
+        email: data.personalInfo?.email ?? '',
+        linkedin: data.personalInfo?.linkedin ?? '',
+        github: data.personalInfo?.github ?? '',
+        leetcode: data.personalInfo?.leetcode ?? '',
+        location: data.personalInfo?.location ?? ''
+      },
+      summary: data.summary ?? '',
+      education: {
+        degree: data.education?.degree ?? '',
+        institution: data.education?.institution ?? '',
+        year: data.education?.year ?? '',
+        cgpa: data.education?.cgpa ?? '',
+        location: data.education?.location ?? ''
+      }
+    });
+
+    (data.experiences ?? []).forEach((exp, i) => {
+      this.addExperience();
+      this.experiences.at(i).patchValue({
+        company: exp.company ?? '',
+        role: exp.role ?? '',
+        dateRange: exp.dateRange ?? '',
+        subtitle: exp.subtitle ?? ''
+      });
+
+      const subsections = (exp.subsections ?? [])
+        .map(ss => ({ title: ss.title ?? '', bullets: (ss.bullets ?? []).filter(b => !!b?.trim()) }))
+        .filter(ss => ss.bullets.length > 0);
+      this.fillExperienceSubsections(i, subsections.length ? subsections : [{ title: '', bullets: [''] }]);
+    });
+
+    (data.projects ?? []).forEach(proj => {
+      this.addProject();
+      this.projects.at(this.projects.length - 1).patchValue({
+        name: proj.name ?? '',
+        description: proj.description ?? '',
+        githubUrl: proj.githubUrl ?? '',
+        githubText: proj.githubText ?? ''
+      });
+    });
+
+    (data.skills ?? []).forEach(skill => {
+      this.addSkill();
+      this.skills.at(this.skills.length - 1).patchValue({ label: skill.label ?? '', value: skill.value ?? '' });
+    });
+
+    (data.achievements ?? []).filter(a => !!a?.trim()).forEach(a => {
+      this.addAchievement();
+      this.achievements.at(this.achievements.length - 1).setValue(a);
+    });
+
+    this.keyAchievements = data.keyAchievements ?? [];
   }
 
   private clearArrays() {

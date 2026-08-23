@@ -77,6 +77,19 @@ export class AuthService {
     this.profile.set(null);
   }
 
+  async requestPasswordReset(email: string): Promise<{ error: string | null }> {
+    const baseHref = document.querySelector('base')?.getAttribute('href') ?? '/';
+    const redirectTo = `${window.location.origin}${baseHref}reset-password`;
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, { redirectTo });
+    return { error: error?.message ?? null };
+  }
+
+  /** Sets a new password — requires an active session (normal, or the temporary one from a reset-link click). */
+  async updatePassword(newPassword: string): Promise<{ error: string | null }> {
+    const { error } = await this.supabase.client.auth.updateUser({ password: newPassword });
+    return { error: error?.message ?? null };
+  }
+
   private init(): Promise<void> {
     // Wait for the client's first INITIAL_SESSION event rather than calling
     // getSession() directly — that event only fires after Supabase has
