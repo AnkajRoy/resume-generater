@@ -3,9 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { PdfGeneratorService } from '../../services/pdf-generator.service';
 import { UsageService } from '../../services/usage.service';
+import { AuthService } from '../../services/auth.service';
 import { ResumeData } from '../../models/resume.model';
 import { SiteHeaderComponent } from '../shared/site-header/site-header.component';
 import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
+import { sampleFrontend, sampleBackend } from '../../data/sample-resumes';
+
+const OWNER_EMAIL = 'ankajkuray@gmail.com';
 
 type ProfileKey = 'frontend' | 'backend';
 
@@ -42,27 +46,44 @@ export class ResumeFormComponent {
   templateStyle: 'classic' | 'modern' = 'classic';
   keyAchievements: { title: string; description: string }[] = [];
 
-  constructor(private fb: FormBuilder, private pdfService: PdfGeneratorService, private usageService: UsageService) {
+  private readonly isOwner: boolean;
+
+  constructor(
+    private fb: FormBuilder,
+    private pdfService: PdfGeneratorService,
+    private usageService: UsageService,
+    private auth: AuthService
+  ) {
     this.form = this.buildForm();
 
-    this.form.patchValue({
-      personalInfo: {
-        name: 'Ankaj Kumar',
-        phone: '+91-9064748813',
-        email: 'ankajkuray@gmail.com',
-        linkedin: 'https://www.linkedin.com/in/ankaj-ray',
-        github: 'https://github.com/akroy',
-        leetcode: 'https://leetcode.com/ankajarya275',
-        location: 'Bengaluru, India'
-      },
-      education: {
-        degree: 'Bachelor of Engineering',
-        institution: 'University Institute of Technology, Burdwan',
-        year: '2022',
-        cgpa: '7.85/10',
-        location: 'Burdwan, West Bengal, India'
-      }
-    });
+    this.isOwner = (this.auth.session()?.user.email ?? '').toLowerCase() === OWNER_EMAIL;
+
+    if (this.isOwner) {
+      this.form.patchValue({
+        personalInfo: {
+          name: 'Ankaj Kumar',
+          phone: '+91-9064748813',
+          email: 'ankajkuray@gmail.com',
+          linkedin: 'https://www.linkedin.com/in/ankaj-ray',
+          github: 'https://github.com/akroy',
+          leetcode: 'https://leetcode.com/ankajarya275',
+          location: 'Bengaluru, India'
+        },
+        education: {
+          degree: 'Bachelor of Engineering',
+          institution: 'University Institute of Technology, Burdwan',
+          year: '2022',
+          cgpa: '7.85/10',
+          location: 'Burdwan, West Bengal, India'
+        }
+      });
+    } else {
+      // Any other account gets generic placeholder data instead of the owner's real details.
+      this.form.patchValue({
+        personalInfo: { ...sampleFrontend.personalInfo },
+        education: { ...sampleFrontend.education }
+      });
+    }
 
     this.applyProfile('frontend');
   }
@@ -226,7 +247,9 @@ export class ResumeFormComponent {
     this.activeProfile = profile;
     this.clearArrays();
 
-    const data = profile === 'frontend' ? this.frontendProfile : this.backendProfile;
+    const data = this.isOwner
+      ? (profile === 'frontend' ? this.frontendProfile : this.backendProfile)
+      : (profile === 'frontend' ? this.genericFrontendProfile : this.genericBackendProfile);
 
     this.form.patchValue({
       personalInfo: { title: data.title },
@@ -260,7 +283,28 @@ export class ResumeFormComponent {
     this.keyAchievements = data.keyAchievements;
   }
 
-  // ===== Frontend-centric profile (Angular / UI focus) =====
+  // ===== Generic placeholder profiles (used for any non-owner account) =====
+  private readonly genericFrontendProfile: ResumeProfile = {
+    title: sampleFrontend.personalInfo.title,
+    summary: sampleFrontend.summary,
+    experience: sampleFrontend.experiences[0],
+    projects: sampleFrontend.projects,
+    skills: sampleFrontend.skills,
+    achievements: sampleFrontend.achievements,
+    keyAchievements: sampleFrontend.keyAchievements ?? []
+  };
+
+  private readonly genericBackendProfile: ResumeProfile = {
+    title: sampleBackend.personalInfo.title,
+    summary: sampleBackend.summary,
+    experience: sampleBackend.experiences[0],
+    projects: sampleBackend.projects,
+    skills: sampleBackend.skills,
+    achievements: sampleBackend.achievements,
+    keyAchievements: sampleBackend.keyAchievements ?? []
+  };
+
+  // ===== Frontend-centric profile (Angular / UI focus) — owner only =====
   private readonly frontendProfile: ResumeProfile = {
     title: 'Software Engineer',
     summary: 'Software Engineer with **4+ years** at InCred Financial Services, currently owning 2 active production portals (Ops Portal and File Tracker FE) using **Angular 18** and **RxJS**. Architected the **auth-login npm package**, providing SSO, OTP login, and access/refresh token management, **migrating 15+ portals from Auth0** and **eliminating 100% of enterprise licensing costs**. Expert in Angular 18, TypeScript, JavaScript (ES6+), RxJS, NestJS, Keycloak/OAuth 2.0, RBAC, CI/CD, and Agile/Scrum.',

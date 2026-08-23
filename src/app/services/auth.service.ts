@@ -44,7 +44,18 @@ export class AuthService {
   }
 
   async signUp(email: string, password: string): Promise<{ error: string | null }> {
-    const { error } = await this.supabase.client.auth.signUp({ email, password });
+    // Without this, Supabase defaults the confirmation-email redirect to
+    // window.location.origin alone — which drops the "/resume-generater/"
+    // path on a GitHub Pages project site, sending users to a 404. Reading
+    // the app's actual <base href> keeps this correct in dev and prod alike.
+    const baseHref = document.querySelector('base')?.getAttribute('href') ?? '/';
+    const emailRedirectTo = window.location.origin + baseHref;
+
+    const { error } = await this.supabase.client.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo }
+    });
     return { error: error?.message ?? null };
   }
 
