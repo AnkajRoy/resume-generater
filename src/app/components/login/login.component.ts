@@ -37,6 +37,20 @@ export class LoginComponent {
 
     this.usage.getTotalCount().then(count => this.totalGenerated.set(count));
   }
+  async loginWithGoogle() {
+    this.loading.set(true);
+    this.error = '';
+    this.info = '';
+
+    const { error } = await this.auth.signInWithGoogle();
+    
+    // If the browser redirects immediately, code execution pauses here.
+    // We only explicitly turn off loading if the redirect initializes with an error.
+    if (error) {
+      this.loading.set(false);
+      this.error = error;
+    }
+  }
 
   toggleMode() {
     this.mode.set(this.mode() === 'signin' ? 'signup' : 'signin');

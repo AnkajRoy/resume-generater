@@ -72,6 +72,22 @@
         </button>
       </form>
 
+<!-- Insert this inside your signin/signup form panel layout -->
+<div class="oauth-divider" style="margin: 1.5rem 0; text-align: center; border-bottom: 1px solid #ccc; line-height: 0.1em;">
+  <span style="background:#fff; padding:0 10px;">or</span>
+</div>
+
+<button 
+  type="button" 
+  (click)="loginWithGoogle()" 
+  [disabled]="loading()" 
+  class="google-sso-button"
+  style="display: flex; align-items: center; justify-content: center; width: 100%; gap: 10px; padding: 10px; cursor: pointer;">
+  <img src="https://authjs.dev" alt="Google Logo" style="width: 18px; height: 18px;">
+  <span>Continue with Google</span>
+</button>
+
+
       <div class="text-center mt-3">
         @if (mode() === 'forgot') {
           <button type="button" class="btn btn-link btn-sm text-decoration-none" (click)="backToSignIn()">

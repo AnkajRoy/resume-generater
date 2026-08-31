@@ -20,6 +20,24 @@ export class AuthService {
   constructor(private supabase: SupabaseService) {
     this.initPromise = this.init();
   }
+  async signInWithGoogle(): Promise<{ error: string | null }> {
+    // Dynamically safely target base paths (e.g., /resume-generater/)
+    const baseHref = document.querySelector('base')?.getAttribute('href') ?? '/';
+    const redirectTo = window.location.origin + baseHref;
+
+    const { error } = await this.supabase.client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
+      }
+    });
+
+    return { error: error?.message ?? null };
+  }
 
   /** Resolves once the initial session restore (from local storage) has completed. */
   ready(): Promise<void> {
