@@ -95,14 +95,26 @@
 /* ======================================================== */
 /* 💬 FULL WORKSPACE CONVERSATION STREAM PANE               */
 /* ======================================================== */
-.active-conversation-pane { width: 100%; height: 100%; display: flex; flex-direction: column; background: #efeae2; }
+.active-conversation-pane { width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; background: #efeae2; }
 
-.chat-window-header { background: #f0f2f5; padding: 12px 20px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
-.back-btn { background: white; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #334155; }
+.chat-window-header { background: #f0f2f5; padding: 12px 20px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #e2e8f0; }
+.back-btn { background: white; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #334155; white-space: nowrap; flex-shrink: 0; }
 .back-btn:hover { background: #f8fafc; }
 .window-details { flex: 1; min-width: 0; }
-.window-details h3 { margin: 0; font-size: 15px; color: #0f172a; font-weight: 700; }
-.window-details p { margin: 0; font-size: 11.5px; color: #64748b; }
+.window-details h3 { margin: 0; font-size: 15px; color: #0f172a; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.window-details p { margin: 0; font-size: 11.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Below ~480px the three items (back button, title block, video-call button)
+   don't fit in one row without squeezing window-details into a near-zero
+   width, which wraps its text into an unreadable one-word-per-line ribbon.
+   Stack them instead — each gets full width, so text wraps normally. */
+@media (max-width: 480px) {
+  .chat-window-header { flex-wrap: wrap; }
+  .back-btn { order: 1; }
+  .window-details { order: 3; flex-basis: 100%; }
+  .window-details h3, .window-details p { white-space: normal; }
+  .video-call-btn { order: 2; margin-left: auto; }
+}
 
 .video-call-btn { background: #0369a1; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 .video-call-btn:hover { background: #0284c7; }
@@ -114,29 +126,96 @@
 .accept-btn { background: #22c55e; color: white; }
 .decline-btn { background: #ef4444; color: white; }
 
-/* Equal-tile grid: 2 participants stack top/bottom (grid-template-rows),
-   3+ would wrap into a real grid (grid-template-columns) — the tile layout
-   scales automatically, but note: the current calling logic only supports
-   one 1:1 connection at a time, so a 3rd simultaneous participant isn't
-   wired up yet — that needs a multi-peer mesh added to chat.service.ts. */
-.video-theater-stage {
-  position: relative;
-  width: 100%;
-  background: #000;
-  max-height: 55vh;
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  gap: 2px;
+/* Google Meet-style call screen. Exactly 2 tiles (me + 1 other) stack as a
+   50/50 top/bottom split; 3+ tiles switch to an even auto-fit grid, up to
+   the 6-participant mesh cap. Takes over the remaining flex space in
+   .active-conversation-pane — the message thread/input are hidden while a
+   call is active, same as a real call screen. */
+.call-participant-count {
+  background: #0f172a;
+  color: #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 14px;
+  text-align: center;
 }
-.remote-video, .local-video {
+.video-theater-stage {
+  flex: 1;
+  min-height: 0;
+  background: #202124;
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.video-theater-stage.tiles-2 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+.video-theater-stage.tiles-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-auto-rows: 1fr;
+}
+.video-tile {
+  position: relative;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+}
+.video-tile video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   background: #000;
 }
-.end-call-btn { position: absolute; top: 12px; right: 12px; z-index: 2; background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.camera-off-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #3c4043;
+  font-size: 28px;
+}
+.tile-label {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  z-index: 1;
+}
+.call-controls-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: #0f172a;
+}
+.control-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: #3c4043;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.control-btn.off { background: #ef4444; }
+.end-call-btn { background: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 24px; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-.chat-history { flex: 1; overflow-y: auto; padding: 20px 5%; display: flex; flex-direction: column; gap: 8px; }
+.chat-history { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 5%; display: flex; flex-direction: column; gap: 8px; }
 
 .bubble-row { display: flex; width: 100%; }
 .row-me { justify-content: flex-end; }

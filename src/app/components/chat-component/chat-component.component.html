@@ -76,53 +76,77 @@
           <p>{{ activeChatTarget() === 'global' ? 'Public Room Channel Stream' : 'Protected 1-on-1 Direct Messaging Session' }}</p>
         </div>
 
-        @if (activeChatTarget() !== 'global' && !chatService.isCallActive()) {
-          <button class="video-call-btn" (click)="initiateVideoCall()">📹 Video Call</button>
+        @if (!chatService.isCallActive()) {
+          <button class="video-call-btn" (click)="initiateVideoCall()">
+            {{ activeChatTarget() === 'global' ? '🎥 Start/Join Group Call' : '📹 Video Call' }}
+          </button>
         }
       </div>
 
       @if (chatService.isIncomingCall()) {
         <div class="incoming-call-alert">
-          <p>🔔 Incoming call from <strong>{{ chatService.currentCallerName() }}</strong>...</p>
+          <p>🔔 Incoming call from <strong>{{ chatService.incomingCallFromName() }}</strong>...</p>
           <div class="alert-actions">
             <button class="accept-btn" (click)="acceptCall()">✅ Answer</button>
-            <button class="decline-btn" (click)="declineOrEndCall()">❌ Decline</button>
+            <button class="decline-btn" (click)="declineIncomingCall()">❌ Decline</button>
           </div>
         </div>
       }
 
       @if (chatService.isCallActive()) {
-        <div class="video-theater-stage">
-          <video class="remote-video" [srcObject]="chatService.remoteStream()" autoplay playsinline></video>
-          <video class="local-video" [srcObject]="chatService.localStream()" autoplay playsinline muted></video>
-          <button class="end-call-btn" (click)="declineOrEndCall()">🛑 End Call</button>
+        <div class="call-participant-count">🟢 {{ totalCallTiles() }}/6 in call</div>
+        <div class="video-theater-stage" [class.tiles-2]="totalCallTiles() === 2" [class.tiles-grid]="totalCallTiles() >= 3">
+          <div class="video-tile local-tile">
+            <video [srcObject]="chatService.localStream()" autoplay playsinline muted></video>
+            @if (!chatService.isCamOn()) {
+              <div class="camera-off-overlay">🚫📷</div>
+            }
+            <span class="tile-label">You</span>
+          </div>
+          @for (tile of callTiles(); track tile.peerId) {
+            <div class="video-tile">
+              <video [srcObject]="tile.stream" autoplay playsinline></video>
+              <span class="tile-label">{{ tile.peerId }}</span>
+            </div>
+          }
+        </div>
+        <div class="call-controls-bar">
+          <button class="control-btn" [class.off]="!chatService.isMicOn()" (click)="chatService.toggleMic()">
+            {{ chatService.isMicOn() ? '🎤' : '🔇' }}
+          </button>
+          <button class="control-btn" [class.off]="!chatService.isCamOn()" (click)="chatService.toggleCam()">
+            {{ chatService.isCamOn() ? '📷' : '📵' }}
+          </button>
+          <button class="end-call-btn" (click)="endCall()">🛑 End Call</button>
         </div>
       }
 
-      <div class="chat-history" #scrollContainer>
-        @for (msg of filteredMessages(); track $index) {
-          <div class="bubble-row" [ngClass]="{'row-me': msg.userName === savedUserName(), 'row-them': msg.userName !== savedUserName()}">
-            <div class="message-bubble">
-              @if (msg.userName !== savedUserName() && activeChatTarget() === 'global') {
-                <span class="bubble-author">{{ msg.userName }}</span>
-              }
-              <p class="bubble-text">{{ msg.text }}</p>
-              <span class="bubble-timestamp">{{ msg.timestamp }}</span>
+      @if (!chatService.isCallActive()) {
+        <div class="chat-history" #scrollContainer>
+          @for (msg of filteredMessages(); track $index) {
+            <div class="bubble-row" [ngClass]="{'row-me': msg.userName === savedUserName(), 'row-them': msg.userName !== savedUserName()}">
+              <div class="message-bubble">
+                @if (msg.userName !== savedUserName() && activeChatTarget() === 'global') {
+                  <span class="bubble-author">{{ msg.userName }}</span>
+                }
+                <p class="bubble-text">{{ msg.text }}</p>
+                <span class="bubble-timestamp">{{ msg.timestamp }}</span>
+              </div>
             </div>
-          </div>
-        } @empty {
-          <div class="empty-chat-placeholder">
-            <p>This is the start of your secure chat string with <strong>{{ activeChatTarget() }}</strong>. Say hello!</p>
-          </div>
-        }
-      </div>
+          } @empty {
+            <div class="empty-chat-placeholder">
+              <p>This is the start of your secure chat string with <strong>{{ activeChatTarget() }}</strong>. Say hello!</p>
+            </div>
+          }
+        </div>
 
-      <div class="chat-input-bar">
-        <input type="text" [(ngModel)]="typedMessage" placeholder="Type a message..." (keyup.enter)="sendMessage()"/>
-        <button [disabled]="!typedMessage.trim()" (click)="sendMessage()">
-          <svg viewBox="0 0 24 24" width="24" height="24" class="send-icon"><path fill="currentColor" d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path></svg>
-        </button>
-      </div>
+        <div class="chat-input-bar">
+          <input type="text" [(ngModel)]="typedMessage" placeholder="Type a message..." (keyup.enter)="sendMessage()"/>
+          <button [disabled]="!typedMessage.trim()" (click)="sendMessage()">
+            <svg viewBox="0 0 24 24" width="24" height="24" class="send-icon"><path fill="currentColor" d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path></svg>
+          </button>
+        </div>
+      }
 
     </div>
   }

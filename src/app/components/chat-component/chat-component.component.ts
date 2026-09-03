@@ -62,16 +62,25 @@ export class ChatComponentComponent implements OnDestroy, AfterViewChecked {
     this.typedMessage = '';
   }
 
+  callTiles = computed(() =>
+    Array.from(this.chatService.remoteParticipants().entries()).map(([peerId, stream]) => ({ peerId, stream }))
+  );
+  totalCallTiles = computed(() => this.callTiles().length + 1);
+
   initiateVideoCall() {
-    this.chatService.startOutgoingVideoCall(this.activeChatTarget());
+    this.chatService.startOrJoinCall(this.activeChatTarget());
   }
 
   acceptCall() {
     this.chatService.acceptIncomingCall();
   }
 
-  declineOrEndCall() {
-    this.chatService.rejectOrHangupCall(this.chatService.currentCallerName());
+  declineIncomingCall() {
+    this.chatService.declineIncomingCall();
+  }
+
+  endCall() {
+    this.chatService.leaveCall();
   }
 
   ngAfterViewChecked() {
