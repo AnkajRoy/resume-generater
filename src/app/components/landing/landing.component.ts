@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { PdfGeneratorService } from '../../services/pdf-generator.service';
 import { DocGeneratorService } from '../../services/doc-generator.service';
 import { AuthService } from '../../services/auth.service';
@@ -44,7 +44,7 @@ const MODERN_SECTIONS: MiniSection[] = [
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.css'
 })

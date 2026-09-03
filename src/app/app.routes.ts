@@ -7,6 +7,7 @@ import { LandingComponent } from './components/landing/landing.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { authGuard } from './guards/auth.guard';
 import { paymentGuard } from './guards/payment.guard';
+import { ChatComponentComponent } from './components/chat-component/chat-component.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'pending-approval', component: PendingApprovalComponent },
   { path: 'payment', component: PaymentComponent, canActivate: [authGuard] },
   { path: 'app', component: ResumeFormComponent, canActivate: [authGuard, paymentGuard] },
+  {path: 'chat', component:ChatComponentComponent}, 
   { path: '**', redirectTo: '' }
 ];

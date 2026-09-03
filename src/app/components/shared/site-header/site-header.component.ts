@@ -11,6 +11,8 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class SiteHeaderComponent {
   @Input() showLogout = false;
+  @Input() brandTitle = 'AK ResumeBuilder';
+  @Input() brandSubtitle = 'Career-ready resumes';
 
   constructor(private router: Router, private auth: AuthService) {}
 

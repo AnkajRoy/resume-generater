@@ -1,0 +1,107 @@
+<app-site-header brandTitle="Friends Chat" brandSubtitle="Talk with your friends"></app-site-header>
+
+<div class="chat-wrapper">
+
+  @if (!savedUserName()) {
+    <div class="split-container">
+      <div class="split-hero-panel">
+        <div class="hero-graphic-sphere">💬</div>
+        <h1 class="hero-title">Your World, Connected.</h1>
+        <p class="hero-subtitle">Connect via text chats, and get ready for high-definition video calls.</p>
+      </div>
+      <div class="split-form-panel">
+        <div class="login-card">
+          <h2>Enter Room Identity</h2>
+          <p>Choose your profile configurations to join the networking space.</p>
+          <div class="form-group">
+            <input type="text" [(ngModel)]="inputName" placeholder="Type your username..." (keyup.enter)="enterChat()"/>
+            
+            <div class="gender-selector">
+              <label><input type="radio" name="gender" [(ngModel)]="chosenGender" value="male"/> 👨 Male Avatar</label>
+              <label><input type="radio" name="gender" [(ngModel)]="chosenGender" value="female"/> 👩 Female Avatar</label>
+            </div>
+
+            <button [disabled]="!inputName.trim()" (click)="enterChat()">Join Hub Dashboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else if (activeChatTarget() === 'contacts') {
+    <div class="contacts-dashboard animate-fade">
+      <div class="dashboard-header">
+        <h3>WhatsApp Messenger Portal</h3>
+        <p class="my-identity-badge">🟢 Logged in as: <strong>{{ savedUserName() }}</strong></p>
+      </div>
+
+      <div class="global-lounge-card" (click)="openChatWith('global')">
+        <div class="card-art">🌍</div>
+        <div class="card-meta">
+          <h4>Enter Global Lounge Room</h4>
+          <p>Open group discussion area. Everyone online can see your posts instantly.</p>
+        </div>
+        <div class="arrow-indicator">➡️</div>
+      </div>
+
+      <div class="section-title">ONLINE CONTACTS DIRECT DIRECTORY</div>
+
+      <div class="contacts-grid">
+        @for (friend of onlineFriends(); track friend.userName) {
+          <div class="friend-card" (click)="openChatWith(friend.userName)">
+            <div class="friend-avatar">
+              @if (friend.gender === 'male') { 👨 } @else if (friend.gender === 'female') { 👩 } @else { 🧑 }
+            </div>
+            <div class="friend-card-info">
+              <h4>{{ friend.userName }}</h4>
+              <span class="status-indicator">Active Now</span>
+            </div>
+            <button class="chat-action-btn">Chat 1v1</button>
+          </div>
+        } @empty {
+          <div class="empty-directory-card">
+            <div class="empty-icon">👥</div>
+            <h4>No Friends Online Yet</h4>
+            <p>Share your live deployment URL link with others so they can pop up on your dashboard!</p>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="active-conversation-pane animate-slide">
+      
+      <div class="chat-window-header">
+        <button class="back-btn" (click)="goBackToContacts()">⬅️ Back to Friends List</button>
+        <div class="window-details">
+          <h3>{{ activeChatTarget() === 'global' ? '🌍 Global Lounge Room' : '💬 Private: ' + activeChatTarget() }}</h3>
+          <p>{{ activeChatTarget() === 'global' ? 'Public Room Channel Stream' : 'Protected 1-on-1 Direct Messaging Session' }}</p>
+        </div>
+      </div>
+
+      <div class="chat-history" #scrollContainer>
+        @for (msg of filteredMessages(); track $index) {
+          <div class="bubble-row" [ngClass]="{'row-me': msg.userName === savedUserName(), 'row-them': msg.userName !== savedUserName()}">
+            <div class="message-bubble">
+              @if (msg.userName !== savedUserName() && activeChatTarget() === 'global') {
+                <span class="bubble-author">{{ msg.userName }}</span>
+              }
+              <p class="bubble-text">{{ msg.text }}</p>
+              <span class="bubble-timestamp">{{ msg.timestamp }}</span>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-chat-placeholder">
+            <p>This is the start of your secure chat string with <strong>{{ activeChatTarget() }}</strong>. Say hello!</p>
+          </div>
+        }
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="text" [(ngModel)]="typedMessage" placeholder="Type a message..." (keyup.enter)="sendMessage()"/>
+        <button [disabled]="!typedMessage.trim()" (click)="sendMessage()">
+          <svg viewBox="0 0 24 24" width="24" height="24" class="send-icon"><path fill="currentColor" d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path></svg>
+        </button>
+      </div>
+
+    </div>
+  }
+
+</div>
