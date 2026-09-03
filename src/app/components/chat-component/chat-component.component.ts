@@ -12,7 +12,7 @@ import { SiteHeaderComponent } from '../shared/site-header/site-header.component
   styleUrl: './chat-component.component.css'
 })
 export class ChatComponentComponent implements OnDestroy, AfterViewChecked {
-  private chatService = inject(ChatService);
+  public chatService = inject(ChatService); // public so the template can read call-state signals directly
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   // Onboarding registration fields
@@ -60,6 +60,18 @@ export class ChatComponentComponent implements OnDestroy, AfterViewChecked {
 
     this.chatService.broadcastMessage(txt, this.activeChatTarget());
     this.typedMessage = '';
+  }
+
+  initiateVideoCall() {
+    this.chatService.startOutgoingVideoCall(this.activeChatTarget());
+  }
+
+  acceptCall() {
+    this.chatService.acceptIncomingCall();
+  }
+
+  declineOrEndCall() {
+    this.chatService.rejectOrHangupCall(this.chatService.currentCallerName());
   }
 
   ngAfterViewChecked() {

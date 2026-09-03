@@ -1,7 +1,19 @@
+/* Locks the whole page to the visible viewport so the header can never be
+   scrolled out of view — the mobile "100vh doesn't match the real visible
+   area" problem is why the input bar needed scrolling to reach before. */
+.chat-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh; /* overrides the line above on browsers that support it */
+  overflow: hidden;
+}
+
 .chat-wrapper {
   display: flex;
   width: 100%;
-  height: calc(100vh - 76px);
+  flex: 1;
+  min-height: 0; /* required so this flex child actually respects overflow instead of growing past it */
   background-color: #f8fafc;
   box-sizing: border-box;
   justify-content: center;
@@ -29,8 +41,13 @@
 .login-card p { font-size: 14px; color: #64748b; margin-bottom: 24px; }
 .login-card input { width: 100%; padding: 14px; margin-bottom: 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
 
-.gender-selector { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
-.gender-selector label { cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.gender-selector { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; font-size: 14px; color: #334155; flex-wrap: wrap; }
+.gender-selector label { cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; white-space: nowrap; }
+.gender-selector input[type="radio"] { width: 16px; height: 16px; margin: 0; flex-shrink: 0; }
+
+@media (max-width: 380px) {
+  .gender-selector { flex-direction: column; align-items: center; gap: 10px; }
+}
 
 .login-card button { width: 100%; padding: 14px; background: #A3D1C6; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; color: #0f172a; box-shadow: 0 4px 6px rgba(163, 209, 198, 0.2); }
 
@@ -80,11 +97,44 @@
 /* ======================================================== */
 .active-conversation-pane { width: 100%; height: 100%; display: flex; flex-direction: column; background: #efeae2; }
 
-.chat-window-header { background: #f0f2f5; padding: 12px 20px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #e2e8f0; }
+.chat-window-header { background: #f0f2f5; padding: 12px 20px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
 .back-btn { background: white; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #334155; }
 .back-btn:hover { background: #f8fafc; }
+.window-details { flex: 1; min-width: 0; }
 .window-details h3 { margin: 0; font-size: 15px; color: #0f172a; font-weight: 700; }
 .window-details p { margin: 0; font-size: 11.5px; color: #64748b; }
+
+.video-call-btn { background: #0369a1; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.video-call-btn:hover { background: #0284c7; }
+
+.incoming-call-alert { background: #0f172a; color: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.incoming-call-alert p { margin: 0; font-size: 13.5px; }
+.alert-actions { display: flex; gap: 8px; }
+.accept-btn, .decline-btn { border: none; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.accept-btn { background: #22c55e; color: white; }
+.decline-btn { background: #ef4444; color: white; }
+
+/* Equal-tile grid: 2 participants stack top/bottom (grid-template-rows),
+   3+ would wrap into a real grid (grid-template-columns) — the tile layout
+   scales automatically, but note: the current calling logic only supports
+   one 1:1 connection at a time, so a 3rd simultaneous participant isn't
+   wired up yet — that needs a multi-peer mesh added to chat.service.ts. */
+.video-theater-stage {
+  position: relative;
+  width: 100%;
+  background: #000;
+  max-height: 55vh;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+}
+.remote-video, .local-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.end-call-btn { position: absolute; top: 12px; right: 12px; z-index: 2; background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
 .chat-history { flex: 1; overflow-y: auto; padding: 20px 5%; display: flex; flex-direction: column; gap: 8px; }
 
